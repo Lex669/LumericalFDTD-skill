@@ -9,11 +9,14 @@ This repository is a **skill** — a specialized instruction pack that extends C
 ## Installation
 
 ```bash
-# Clone into your Claude Code skills directory
-git clone https://github.com/xiaoxin-robotech/LumericalFDTD.git ~/.claude/skills/LumericalFDTD
+# Step 1: Add the marketplace
+/plugin marketplace add Lex669/LumericalFDTD-skill
+
+# Step 2: Install the plugin
+/plugin install LumericalFDTD@LumericalFDTD
 ```
 
-Or install via the `/skills` dialog in Claude Code. The skill will be auto-discovered on next launch.
+Once installed, the skill will be auto-discovered on next launch. You can also run `/skills` in Claude Code to verify it's available.
 
 ## Requirements
 
