@@ -2,37 +2,47 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## This is a Claude Code Skill
+## This is a Claude Code Plugin
 
-This repo defines the **LumericalFDTD** skill — a Superpowers skill that automates Ansys Lumerical FDTD simulation workflows. When loaded by Claude Code, `SKILL.md` becomes the system prompt for handling photonics simulation tasks. The skill generates Python scripts, runs them against Lumerical's built-in Python interpreter, debugs errors autonomously, and delivers `.fsp` files and result charts.
+This repo defines the **LumericalFDTD** plugin with three skills:
 
-**There is no build, lint, test suite, or traditional CI pipeline.** "Development" means editing the skill definition (`plugins/LumericalFDTD/skills/LumericalFDTD/SKILL.md`), reference files (`plugins/LumericalFDTD/skills/LumericalFDTD/references/`), and template scripts (`plugins/LumericalFDTD/skills/LumericalFDTD/scripts/`).
+| Skill | 用途 |
+|-------|------|
+| **LumericalFDTD** | Ansys Lumerical FDTD 仿真自动化 — 构建 Python 脚本、运行仿真、debug、输出 `.fsp`/`.npz`/`.png` |
+| **paper-summarizer** | 学术论文深度总结 — 读取PDF论文，结构化输出中文总结，逐图逐表详细解释 |
+| **propaper-reader** | (待迁移) 多智能体论文分析管线 |
+| **export-paper** | (待迁移) 论文分析结果导出 |
+
+**There is no build, lint, test suite, or traditional CI pipeline.** "Development" means editing skill files (`skills/*/SKILL.md`) and their reference files (`skills/*/references/`).
 
 ## Architecture
 
 ```
 .claude-plugin/
-  marketplace.json                    # Marketplace manifest
-plugins/LumericalFDTD/
-  .claude-plugin/
-    plugin.json                       # Plugin manifest
-  skills/LumericalFDTD/
-    SKILL.md                          # Skill definition (frontmatter + instructions loaded at runtime)
+  plugin.json                         # Plugin manifest — 注册所有 skills
+skills/
+  LumericalFDTD/
+    SKILL.md                          # FDTD 仿真 skill 定义
     references/
-      building-blocks.md              # Geometry, sources, monitors, mesh override recipes
-      api-reference.md                # Session management, SimObject, data passing, lumopt
-      common-errors.md                # Error→cause→fix lookup table for known Lumerical quirks
-      diffraction.md                  # Aperture diffraction, Airy rings, near/far-field analysis
+      building-blocks.md              # 几何结构、光源、监视器、网格覆盖
+      api-reference.md                # 会话管理、SimObject、数据传递、lumopt
+      common-errors.md                # 已知 Lumerical API 陷阱
+      diffraction.md                  # 孔衍射、Airy环、近场/远场分析
     scripts/
-      template.py                     # Skeleton Python script with __API_PATH__ and __OUTPUT_DIR__ placeholders
-    assets/                           # (currently empty — reserved for images/diagrams)
+      template.py                     # 仿真脚本骨架模板
+    assets/                           # (预留)
+  paper-summarizer/
+    SKILL.md                          # 论文总结 skill 定义
+    references/
+      output-template.md              # 中文输出报告模板
+      chart-analysis.md               # 各类型图表分析方法论
 ```
 
-**How it works at runtime:**
-1. The `Skill` tool loads `SKILL.md` as task instructions when the user's request matches the skill description
-2. `SKILL.md` defines a rigid 5-step pipeline (understand → write script → run & debug → verify → save)
-3. During script generation, the model reads the relevant `references/*.md` files based on the task type
-4. `plugins/LumericalFDTD/skills/LumericalFDTD/scripts/template.py` provides the starting structure; `__API_PATH__` and `__OUTPUT_DIR__` are replaced dynamically after environment probing
+**How skills work at runtime:**
+1. `plugin.json` 的 `components.skills` 注册每个 skill 的路径
+2. Claude Code 启动时加载所有 skill 的 `name` + `description`（始终在上下文中）
+3. 当用户请求匹配某个 skill 的 description 时，`Skill` 工具加载完整 `SKILL.md`
+4. `SKILL.md` 中引用 `references/` 文件，模型按需读取（渐进披露）
 
 ## Key Design Decisions
 
@@ -43,8 +53,10 @@ plugins/LumericalFDTD/
 
 ## Common Operations
 
-- **Editing skill instructions:** Edit `plugins/LumericalFDTD/skills/LumericalFDTD/SKILL.md`. The frontmatter `name` and `description` fields control when the skill triggers.
-- **Adding a new API quirk:** Add a row to the table in `plugins/LumericalFDTD/skills/LumericalFDTD/references/common-errors.md`.
-- **Adding a new geometry pattern:** Add a section to `plugins/LumericalFDTD/skills/LumericalFDTD/references/building-blocks.md`.
-- **Updating the template:** Edit `plugins/LumericalFDTD/skills/LumericalFDTD/scripts/template.py`. Keep `__API_PATH__` and `__OUTPUT_DIR__` as placeholders.
-- **Validating the skill:** Install it in your Claude Code via `/plugin marketplace add Lex669/LumericalFDTD-skill` + `/plugin install LumericalFDTD@LumericalFDTD` and test with a real Lumerical task. There is no automated test suite — validation requires the Lumerical license and installation.
+- **Editing FDTD skill:** Edit `skills/LumericalFDTD/SKILL.md`. The frontmatter `name` and `description` fields control when the skill triggers.
+- **Adding a new API quirk:** Add a row to the table in `skills/LumericalFDTD/references/common-errors.md`.
+- **Adding a new geometry pattern:** Add a section to `skills/LumericalFDTD/references/building-blocks.md`.
+- **Updating the FDTD template:** Edit `skills/LumericalFDTD/scripts/template.py`. Keep `__API_PATH__` and `__OUTPUT_DIR__` as placeholders.
+- **Editing paper-summarizer skill:** Edit `skills/paper-summarizer/SKILL.md`. Output template in `skills/paper-summarizer/references/output-template.md`, chart methodology in `skills/paper-summarizer/references/chart-analysis.md`.
+- **Registering a new skill:** Add an entry to `.claude-plugin/plugin.json` under `components.skills`.
+- **Validating the skill:** Install it in your Claude Code via `/plugin marketplace add Lex669/LumericalFDTD-skill` + `/plugin install LumericalFDTD@LumericalFDTD` and test with a real task. There is no automated test suite — validation requires the Lumerical license (for FDTD) or real PDF papers (for paper-summarizer).

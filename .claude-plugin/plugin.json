@@ -1,0 +1,54 @@
+{
+  "name": "LumericalFDTD",
+  "version": "1.0.0",
+  "description": "Ansys Lumerical FDTD Python API automation and deep academic paper analysis. FDTD: photonics design, diffraction analysis, metasurfaces, waveguides, gratings, TGV structures — generates Python scripts, runs them against Lumerical's built-in Python interpreter, debugs errors autonomously, and delivers .fsp files and result charts. Paper analysis: 7 autonomous agents (reader, math, vision, experiment, critic, research, comparison) in a 4-phase pipeline for full analysis, figure interpretation, cross-paper comparison, and structured export (reading notes, PPT outlines, review materials). Tuned for infrared, optics, TGV, thermal imaging, machine vision, and physics/engineering.",
+  "author": {
+    "name": "Lex669"
+  },
+  "homepage": "https://github.com/Lex669/LumericalFDTD-skill",
+  "repository": "https://github.com/Lex669/LumericalFDTD-skill",
+  "license": "MIT",
+  "keywords": [
+    "lumerical",
+    "fdtd",
+    "photonics",
+    "optics",
+    "simulation",
+    "ansys",
+    "diffraction",
+    "waveguide",
+    "metasurface",
+    "TGV",
+    "academic",
+    "paper",
+    "research",
+    "reading",
+    "summarization",
+    "figure-interpretation",
+    "cross-paper-comparison",
+    "literature-review",
+    "export",
+    "reading-notes",
+    "infrared",
+    "thermal-imaging",
+    "machine-vision",
+    "physics",
+    "engineering",
+    "multi-agent",
+    "critical-analysis",
+    "innovation-assessment",
+    "reproducibility"
+  ],
+  "components": {
+    "skills": [
+      {
+        "name": "LumericalFDTD",
+        "path": "skills/LumericalFDTD/SKILL.md"
+      },
+      {
+        "name": "paper-summarizer",
+        "path": "skills/paper-summarizer/SKILL.md"
+      }
+    ]
+  }
+}
