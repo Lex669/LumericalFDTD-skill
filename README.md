@@ -1,22 +1,27 @@
 # LumericalFDTD
 
-A [Claude Code](https://claude.ai/code) skill that automates Ansys Lumerical FDTD simulation workflows. Describe your photonic device in natural language — the skill generates Python scripts, runs them against Lumerical's built-in interpreter, debugs errors autonomously, and delivers `.fsp` files and result charts.
+A [Claude Code](https://claude.ai/code) plugin that automates Ansys Lumerical FDTD simulation workflows and provides deep academic paper analysis. Describe your photonic device or drop in a PDF — the plugin generates Python scripts, runs simulations, debugs errors, and delivers result charts and structured paper summaries.
 
-## What is a Claude Code Skill?
+## What is a Claude Code Plugin?
 
-This repository is a **skill** — a specialized instruction pack that extends Claude Code's capabilities. When installed, `SKILL.md` is loaded into Claude's context whenever a user's request matches photonics simulation, FDTD, or related optics topics. Claude then follows the skill's 5-step pipeline to build, run, debug, and verify simulations automatically.
+This repository is a **plugin** — a packaged extension for Claude Code containing multiple skills. When installed, each skill's description is always in context; Claude loads the full `SKILL.md` when a user's request matches. This plugin contains two skills:
+
+| Skill | Purpose |
+|-------|---------|
+| LumericalFDTD | FDTD simulation automation — build, run, debug, output `.fsp` / `.npz` / `.png` |
+| paper-summarizer | Deep academic paper summarization in Chinese with figure-by-figure analysis |
 
 ## Installation
 
 ```bash
 # Step 1: Add the marketplace
-/plugin marketplace add Lex669/LumericalFDTD-skill
+/plugin marketplace add Lex669/AutoSim
 
 # Step 2: Install the plugin
-/plugin install LumericalFDTD@LumericalFDTD
+/plugin install LumericalFDTD@AutoSim
 ```
 
-Once installed, the skill will be auto-discovered on next launch. You can also run `/skills` in Claude Code to verify it's available.
+Once installed, skills are auto-discovered on next launch. Run `/skills` in Claude Code to verify.
 
 ## Requirements
 
@@ -27,37 +32,50 @@ Once installed, the skill will be auto-discovered on next launch. You can also r
 ## How It Works
 
 ```
-User describes device → Skill probes environment → Generates Python scripts → Runs via Lumerical's Python → Debugs errors → Saves .fsp + charts
+User describes device → Plugin probes environment → Generates Python scripts → Runs via Lumerical's Python → Debugs errors → Saves .fsp + charts
 ```
 
-The skill separates **simulation** (heavy FDTD run, minutes to hours) from **analysis** (data processing and plotting, seconds). This lets you tweak colors, labels, and figure layout without re-running the simulation.
+The FDTD skill separates **simulation** (heavy FDTD run, minutes to hours) from **analysis** (data processing and plotting, seconds). This lets you tweak colors, labels, and figure layout without re-running the simulation.
 
 ## Repository Structure
 
 ```
-├── SKILL.md                       # Skill definition and runtime instructions
-├── LICENSE.txt                    # MIT license
-├── scripts/
-│   └── template.py                # Python script skeleton (placeholders replaced at runtime)
-├── references/
-│   ├── building-blocks.md         # Geometry, sources, monitors, and mesh recipes
-│   ├── api-reference.md           # Session management, SimObject, data passing, lumopt
-│   ├── common-errors.md           # Error → cause → fix lookup for known Lumerical quirks
-│   └── diffraction.md             # Aperture diffraction, Airy rings, near/far-field analysis
-└── assets/                        # Images and diagrams (reserved)
+├── .claude-plugin/
+│   └── plugin.json                 # Plugin manifest — registers skills
+├── skills/
+│   ├── LumericalFDTD/
+│   │   ├── SKILL.md                # FDTD skill definition and runtime instructions
+│   │   ├── scripts/
+│   │   │   └── template.py         # Python script skeleton
+│   │   └── references/
+│   │       ├── building-blocks.md  # Geometry, sources, monitors, and mesh recipes
+│   │       ├── api-reference.md    # Session management, SimObject, data passing, lumopt
+│   │       ├── common-errors.md    # Error → cause → fix lookup for known Lumerical quirks
+│   │       └── diffraction.md      # Aperture diffraction, Airy rings, near/far-field analysis
+│   └── paper-summarizer/
+│       ├── SKILL.md                # Paper summarization skill definition
+│       └── references/
+│           ├── output-template.md  # Chinese output report template
+│           └── chart-analysis.md   # Figure/chart analysis methodology
+├── CLAUDE.md                       # Development guidance for working in this repo
+├── LICENSE.txt                     # MIT
+└── README.md
 ```
 
 ## Supported Use Cases
 
-Photonics device design, diffraction analysis, metasurfaces, waveguides, gratings, TGV (Through Glass Via) structures, optical field propagation — any task requiring FDTD simulation with Ansys Lumerical.
+**FDTD simulation:** Photonics device design, diffraction analysis, metasurfaces, waveguides, gratings, TGV (Through Glass Via) structures, optical field propagation.
+
+**Paper analysis:** Deep structured summaries of academic papers (especially infrared, optics, thermal imaging, machine vision, physics, and engineering), with per-figure interpretation and cross-paper comparison.
 
 ## Example Prompts
 
-Once the skill is installed, describe your simulation in natural language:
+Once the plugin is installed, describe your task in natural language:
 
 - "Design a 30 μm diameter circular aperture in a 50 μm thick SiO2 substrate, illuminated by a 100 μm plane wave, and observe the transmitted diffraction pattern"
 - "Simulate the reflection spectrum of a gold grating — period 10 μm, duty cycle 0.5, wavelength 1–2 μm"
 - "Parameter sweep: circular aperture diameter from 20 μm to 60 μm, step 10 μm, compare transmittance"
+- "Summarize this paper in Chinese, explaining each figure in detail"
 
 ## Project Directory Convention
 
@@ -72,7 +90,7 @@ Every simulation the skill creates follows this structure:
 
 ## Known Lumerical API Quirks
 
-The Lumerical Python API has several non-obvious behaviors documented in `references/common-errors.md`:
+The Lumerical Python API has several non-obvious behaviors documented in `skills/LumericalFDTD/references/common-errors.md`:
 
 - Material names must be full strings: `"PEC (Perfect Electrical Conductor)"`, not `"PEC"`
 - Polygon function is `addpoly`, not `addpolygon`
@@ -82,7 +100,7 @@ The Lumerical Python API has several non-obvious behaviors documented in `refere
 
 ## Script Template
 
-`scripts/template.py` provides the base structure all generated scripts follow:
+`skills/LumericalFDTD/scripts/template.py` provides the base structure all generated scripts follow:
 
 ```python
 # 1. Imports (API path, lumapi, numpy, matplotlib)
@@ -103,19 +121,20 @@ with lumapi.FDTD(hide=True) as fdtd:
 
 | File | Purpose |
 |------|---------|
-| `references/building-blocks.md` | Building geometry, setting up sources, monitors, and mesh |
-| `references/api-reference.md` | Session management, SimObject, data passing, lumopt |
-| `references/common-errors.md` | Troubleshooting runtime errors |
-| `references/diffraction.md` | Aperture diffraction, Airy rings, near-field / far-field analysis |
+| `skills/LumericalFDTD/references/building-blocks.md` | Building geometry, setting up sources, monitors, and mesh |
+| `skills/LumericalFDTD/references/api-reference.md` | Session management, SimObject, data passing, lumopt |
+| `skills/LumericalFDTD/references/common-errors.md` | Troubleshooting runtime errors |
+| `skills/LumericalFDTD/references/diffraction.md` | Aperture diffraction, Airy rings, near-field / far-field analysis |
 
 ## Contributing
 
-This skill follows the [skill-creator](https://github.com/anthropics/claude-code/tree/main/skills/skill-creator) framework. To modify or extend it:
+This plugin follows the [skill-creator](https://github.com/anthropics/claude-code/tree/main/skills/skill-creator) framework. To modify or extend it:
 
-1. Edit `SKILL.md` to change instructions or workflows
-2. Add API quirks to `references/common-errors.md`
-3. Add geometry patterns to `references/building-blocks.md`
-4. Update `scripts/template.py` if the base script structure needs to change
-5. Validate by running real Lumerical tasks with the modified skill
+1. Edit `skills/*/SKILL.md` to change instructions or workflows
+2. Add API quirks to `skills/LumericalFDTD/references/common-errors.md`
+3. Add geometry patterns to `skills/LumericalFDTD/references/building-blocks.md`
+4. Update `skills/LumericalFDTD/scripts/template.py` if the base script structure needs to change
+5. Register new skills in `.claude-plugin/plugin.json`
+6. Validate by running real Lumerical tasks with the modified plugin
 
-The CLAUDE.md at the root provides additional guidance for Claude instances working in this repository.
+The `CLAUDE.md` at the root provides additional guidance for Claude instances working in this repository.
