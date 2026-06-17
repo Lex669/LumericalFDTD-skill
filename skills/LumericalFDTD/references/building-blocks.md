@@ -2,6 +2,30 @@
 
 > 此文件在需要构建仿真结构时读取。涵盖仿真区域、材料、几何体、光源、监视器、网格覆盖的详细用法。
 
+## 目录
+
+- [仿真区域 (FDTD Region)](#仿真区域-fdtd-region)
+  - [标准 3D](#标准-3d)
+  - [Quasi-2D](#quasi-2dxy-截面为无限仅-xz-平面有效)
+- [材料设置](#材料设置)
+- [几何结构](#几何结构)
+  - [矩形块 (addrect)](#矩形块-addrect)
+  - [圆形孔 (addcircle)](#圆形孔-addcircle)
+  - [多边形孔 (addpoly)](#多边形孔-addpoly)
+  - [锥形/渐变结构（addcone 替代方案）](#锥形渐变结构addcone-替代方案)
+- [光源](#光源)
+  - [平面波 (addplane)](#平面波-addplane)
+  - [高斯光束 (addgaussian)](#高斯光束-addgaussian)
+- [监视器](#监视器)
+  - [功率监视器 (addpower)](#功率监视器-addpower)
+  - [场分布监视器 (addprofile)](#场分布监视器-addprofile)
+- [结果提取](#结果提取)
+- [网格覆盖 (Mesh Override)](#网格覆盖-mesh-override)
+- [参数扫描模式](#参数扫描模式)
+- [多监视器同时观察](#多监视器同时观察)
+
+---
+
 ## 仿真区域 (FDTD Region)
 
 ### 标准 3D

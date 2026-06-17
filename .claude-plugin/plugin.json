@@ -1,7 +1,7 @@
 {
   "name": "LumericalFDTD",
-  "version": "1.0.0",
-  "description": "Ansys Lumerical FDTD Python API automation and deep academic paper analysis. FDTD: photonics design, diffraction analysis, metasurfaces, waveguides, gratings, TGV structures — generates Python scripts, runs them against Lumerical's built-in Python interpreter, debugs errors autonomously, and delivers .fsp files and result charts. Paper analysis: 7 autonomous agents (reader, math, vision, experiment, critic, research, comparison) in a 4-phase pipeline for full analysis, figure interpretation, cross-paper comparison, and structured export (reading notes, PPT outlines, review materials). Tuned for infrared, optics, TGV, thermal imaging, machine vision, and physics/engineering.",
+  "version": "1.1.0",
+  "description": "Ansys Lumerical FDTD Python API automation — end-to-end photonics simulation pipeline with four fine-grained skills (modeling, simulation, analysis, full-pipeline) and slash commands for each phase. Includes deep academic paper summarization with per-figure analysis. Covers diffraction, metasurfaces, waveguides, gratings, TGV structures, and general optics/photonics design.",
   "author": {
     "name": "Lex669"
   },
@@ -19,25 +19,10 @@
     "waveguide",
     "metasurface",
     "TGV",
+    "paper-summarization",
     "academic",
-    "paper",
-    "research",
-    "reading",
-    "summarization",
-    "figure-interpretation",
-    "cross-paper-comparison",
-    "literature-review",
-    "export",
-    "reading-notes",
-    "infrared",
-    "thermal-imaging",
-    "machine-vision",
-    "physics",
-    "engineering",
-    "multi-agent",
-    "critical-analysis",
-    "innovation-assessment",
-    "reproducibility"
+    "figure-analysis",
+    "literature-review"
   ],
   "components": {
     "skills": [
@@ -46,8 +31,38 @@
         "path": "skills/LumericalFDTD/SKILL.md"
       },
       {
+        "name": "LumericalFDTD-modeling",
+        "path": "skills/LumericalFDTD-modeling/SKILL.md"
+      },
+      {
+        "name": "LumericalFDTD-simulation",
+        "path": "skills/LumericalFDTD-simulation/SKILL.md"
+      },
+      {
+        "name": "LumericalFDTD-analysis",
+        "path": "skills/LumericalFDTD-analysis/SKILL.md"
+      },
+      {
         "name": "paper-summarizer",
         "path": "skills/paper-summarizer/SKILL.md"
+      }
+    ],
+    "commands": [
+      {
+        "name": "fdtd-model",
+        "path": "commands/fdtd-model.md"
+      },
+      {
+        "name": "fdtd-simulate",
+        "path": "commands/fdtd-simulate.md"
+      },
+      {
+        "name": "fdtd-analyze",
+        "path": "commands/fdtd-analyze.md"
+      },
+      {
+        "name": "fdtd-full",
+        "path": "commands/fdtd-full.md"
       }
     ]
   }

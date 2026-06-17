@@ -1,31 +1,67 @@
 ---
 name: LumericalFDTD
-description: 为 Ansys Lumerical FDTD 构建和调试 Python 自动化仿真脚本。当你需要创建光学仿真、光子器件设计、衍射分析、超表面、波导、光栅、TGV 结构、光场传播等 FDTD 相关任务时使用此 skill。支持 2025 R2 版本，使用内置 Python 解释器自动运行代码并迭代 debug 直到满足验收条件。
+description: |
+  端到端 Ansys Lumerical FDTD 仿真自动化 — 从零构建模型、运行仿真、自动debug、数据分析与可视化全流程。当你需要完整的光学仿真项目（建模→仿真→分析→验收）时使用此skill。
+  End-to-end Ansys Lumerical FDTD simulation automation — full pipeline from modeling through simulation to analysis and verification. Use when you need a complete photonics simulation project.
+  子技能（单独使用某个阶段）：建模用 LumericalFDTD-modeling / 仿真执行用 LumericalFDTD-simulation / 数据分析用 LumericalFDTD-analysis
 ---
 
-# Lumerical FDTD 仿真构建器
+# Lumerical FDTD 全流程仿真
 
 ## 核心工作流（必须严格按顺序执行，不可跳过）
 
-每次处理 FDTD 任务时严格遵循以下流水线。**创建文件只是准备阶段，运行仿真才是核心工作。**
+每次处理完整 FDTD 任务时严格遵循以下三阶段流水线。**创建文件只是准备阶段，运行仿真才是核心工作。**
 
-### 阶段 A：准备
+### 阶段 A：准备与建模
 
 1. **理解需求** — 确认器件结构（几何参数、材料）、光源（波长范围、偏振）、监视器要求、验收条件
 2. **环境探测**（本会话首次时）— 定位 Lumerical Python 解释器路径
 3. **编写 `*_sim.py`** — 生成仿真脚本，包含结构构建、光源、监视器、`fdtd.run()`、数据保存
 
+> 仅需建模不跑仿真 → 改用 `LumericalFDTD-modeling` skill
+
 ### 阶段 B：执行仿真（不可跳过，不可省略）
 
 4. **运行仿真脚本** — 用 Bash 工具调用 Lumerical Python 解释器执行 `*_sim.py`
 5. **检查输出** — 确认 `.fsp` 和 `.npz` 文件已生成，检查日志无致命错误
-6. **如遇错误** — 读取 `references/common-errors.md`，修复脚本，回到步骤 4，直到仿真成功运行
+6. **如遇错误** — 读取 `references/common-errors.md`，修复脚本，回到步骤 4。**最多重试 5 次**，超过则向用户报告所有尝试过的修复及错误，请求人工介入
 7. **编写并运行 `*_analysis.py`** — 读取 `.npz` 数据，计算指标，绘图保存 `.png`
+
+> 仅需分析已有数据 → 改用 `LumericalFDTD-analysis` skill
 
 ### 阶段 C：验收
 
 8. **验证结果** — 检查 `.png` 图表是否满足验收条件（透射率、模式分布、衍射环等），不满足则调整 `*_sim.py` 参数回到步骤 4
 9. **更新 REPORT.md** — 记录仿真参数、结果摘要、图表说明
+
+### 错误处理循环（含最大重试上限）
+
+```
+重试次数 = 0
+最大重试 = 5
+
+while 仿真未成功 and 重试次数 < 最大重试:
+    运行 sim.py
+    if 报错:
+        读取 references/common-errors.md
+        根据错误类型定位解决方案
+        修复脚本
+        重试次数 += 1
+        log(f"第 {重试次数}/{最大重试} 次重试...")
+    else:
+        检查 .npz 存在 → 成功，跳出循环
+        检查 .fsp 存在 → 成功，跳出循环
+
+if 重试次数 >= 最大重试:
+    向用户报告：
+    - "自动修复已达 {最大重试} 次上限，需人工介入"
+    - 列出每次尝试的错误信息和对应修复
+    - 建议可能的排查方向
+```
+
+> **绝对禁止**：创建完 `_sim.py` 和 `_analysis.py` 后直接告诉用户"脚本已创建，请自行运行"。必须亲自执行。
+
+> **绝对禁止**：无限循环重试。5 次上限后必须 escalate 给用户。
 
 ### 完成定义 (Definition of Done)
 
@@ -40,8 +76,6 @@ description: 为 Ansys Lumerical FDTD 构建和调试 Python 自动化仿真脚�
 > **关键原则**：只创建 `.py` 文件不算完成任务。必须用 Bash 工具执行脚本、等待仿真跑完、生成 `.npz` 和 `.png` 输出。每个错误都是修正 skill 知识的机会。
 
 ## 环境适配（首次对话必须执行）
-
-用户环境差异大（OS、安装路径、版本号各异），首次处理 FDTD 任务时必须先确认环境：
 
 ### 1. 探测操作系统
 
@@ -67,11 +101,10 @@ C:\Program Files\Lumerical\v252\python\python.exe
 /usr/local/lumerical/v252/python/python
 ```
 
-> 版本号 `v252` 可能不同（如 v251、v241），用通配或 `ls` 探索实际目录名。
+> 版本号 `v252` 可能不同（v251、v241），用 glob 或 `ls` 探索实际目录名。
 
 ### 3. 确认方式
 
-用 `bash` 工具检测解释器是否存在：
 ```powershell
 Test-Path -LiteralPath 'C:\Apps\ANSYS Inc\v252\Lumerical\python\python.exe'
 ```
@@ -82,36 +115,17 @@ test -f /opt/ansys_inc/v252/Lumerical/python/python && echo "found"
 
 若所有默认路径都不存在，**向用户询问**实际安装路径和版本号。
 
-### 4. 构建项目内 Python 脚本
+### 4. 调用方式
 
-根据探测到的路径，将路径变量动态写入脚本：
-
-```python
-# {PYTHON_PATH} 和 {API_PATH} 由环境探测步骤确定
-import sys
-sys.path.append("{API_PATH}")
-import lumapi
-import numpy as np
-
-# 无头模式避免 GUI 弹窗报错
-import matplotlib
-matplotlib.use('Agg')
-import matplotlib.pyplot as plt
-```
-
-### 5. 调用方式
-
-**Windows PowerShell**（路径含空格时用 `&` 操作符包裹）：
+**Windows PowerShell**（路径含空格时用 `&` 操作符）：
 ```powershell
 & '{PYTHON_PATH}' 'script.py'
 ```
 
-**Linux / macOS**：
+**Git Bash**（`&` 不支持，直接调用）：
 ```bash
-{PYTHON_PATH} script.py
+'C:/path/to/python.exe' 'script.py'
 ```
-
-> **注意**：raw string 不能以 `\` 结尾（如 `r"C:\path\"` 会报 SyntaxError），用 `"C:\\path\\"` 代替。
 
 ## 脚本总体结构
 
@@ -134,7 +148,7 @@ with lumapi.FDTD(hide=True) as fdtd:
     # 3e. 光源
     # 3f. 监视器
     # 3g. 保存 -> 运行 -> 提取结果
-    fdtd.save("C:\\path\\to\\output.fsp")
+    fdtd.save(os.path.join(fsp_dir, "simulation.fsp"))
     fdtd.run()
     result = fdtd.getresult("monitor_name", "E")
 
@@ -145,45 +159,13 @@ with lumapi.FDTD(hide=True) as fdtd:
 
 ## 用 Bash 执行脚本（阶段 B 核心操作）
 
-仿真脚本写完后，**必须立刻用 Bash 工具执行**，不能只创建文件就结束。
-
-### 执行步骤
-
-```
-# 步骤 1：先运行仿真脚本（耗时，必须等待完成）
-bash: & 'PYTHON_PATH' 'path/to/project_sim.py'
-
-# 步骤 2：确认 .npz 文件已生成
-bash: ls path/to/project/data/
-
-# 步骤 3：运行分析脚本（秒级）
-bash: & 'PYTHON_PATH' 'path/to/project_analysis.py'
-
-# 步骤 4：确认 .png 图表已生成
-bash: ls path/to/project/pic/
-```
-
 ### 超时设置
 
-仿真脚本可能运行数分钟到数小时，Bash 调用时设置足够长的 timeout：
-- 简单 2D 仿真：300000ms (5 分钟)
-- 中等 3D 仿真：1200000ms (20 分钟)
-- 大型参数扫描：6000000ms (100 分钟)
-
-### 错误处理循环
-
-```
-while 仿真未成功:
-    运行 sim.py
-    if 报错:
-        读取 references/common-errors.md
-        修复脚本
-        重新运行
-    else:
-        检查 .npz 存在 → 继续
-```
-
-> **绝对禁止**：创建完 `_sim.py` 和 `_analysis.py` 后直接告诉用户"脚本已创建，请自行运行"。必须亲自执行。
+| 仿真规模 | timeout |
+|---------|---------|
+| 简单 2D | 300,000ms (5 分钟) |
+| 中等 3D | 1,200,000ms (20 分钟) |
+| 大型参数扫描 | 6,000,000ms (100 分钟) |
 
 ## 仿真与后处理分离（必须遵守）
 
@@ -205,21 +187,6 @@ project_name_analysis.py  # 分析（纯数据读取，不调 lumapi.FDTD）
 - `.npz` 数据是仿真和分析之间的唯一接口
 - 分析脚本可在仿真运行后反复执行、迭代调参
 
-### 示例
-
-```python
-# myproject_sim.py —— 只做仿真
-with lumapi.FDTD(hide=True) as fdtd:
-    ...
-    fdtd.run()
-    np.savez(os.path.join(data_dir, "results.npz"), I=I, x=x, y=y)
-
-# myproject_analysis.py —— 只做分析
-data = np.load(os.path.join(data_dir, "results.npz"))
-plt.plot(data["x"], data["I"])
-plt.savefig(os.path.join(pic_dir, "plot.png"))
-```
-
 ## 2D 与 Quasi-2D 陷阱（高频错误！）
 
 **绝对不要用 `fdtd.set("dimension", "2D")`：**
@@ -234,7 +201,7 @@ plt.savefig(os.path.join(pic_dir, "plot.png"))
 - **必须**设置 `auto shutoff min = 3000e-15`（>= 3 ps），否则自动关断在 ~0.04 ps 触发
 - Quasi-2D 数据形状：`I` = `[nx, ny, 1, nfreq]`（ny=1-3），沿 y 求和得 1D profile
 
-见 `references/building-blocks.md` 完整 quasi-2D 模板。
+> 完整 quasi-2D 代码模板见 `references/building-blocks.md`
 
 ## 关键约束（必须遵守）
 
@@ -249,13 +216,13 @@ plt.savefig(os.path.join(pic_dir, "plot.png"))
 | 多边形顶点用 N×2 矩阵 | `set("vertices", vertices)` 而非分别 set x/y |
 | 切片结果用 `.copy()` | NumPy 视图原地操作会污染原始数据 |
 | raw string 不能以反斜杠结尾 | 用双反斜杠 `"C:\\path\\"` |
-| **严禁 `fdtd.set("dimension", "2D")`** | API 接受但仿真仍按 3D 运行，监视器数据全为零 | 用 quasi-2D：3D + `y_span=0.2um` + `y min/max bc = Periodic` |
-| **2D/quasi-2D 必须设 `auto shutoff min`** | 默认自动关断 ~0.04 ps，光未到达监视器 | `fdtd.set("auto shutoff min", 3000e-15)` >= 3 ps |
-| **宽带波长 `wavelengths[0]` 是最长波** | 频率线性递增，波长递减 | 设 `wl_short_idx = nfreq-1`, `wl_long_idx = 0` |
-| **print 特殊字符 -> GBK 乱码** | Windows 终端 GBK 编码报错 | 用纯 ASCII：`lambda` `delta` `um` 替代 superscript/arrow |
-| **Bash 不支持 `&` 操作符** | `&` 是 PowerShell 语法 | 直接 `'path/to/python.exe' 'script.py'` |
-| **改仿真模式后清除旧数据** | skip-if-exists 跳过所有重跑 | `rm data/*.npz fsp/*.fsp` 后再启动 |
-| **不用 `-c` 跑复杂 Python** | 引号嵌套与反斜杠冲突 | 写临时 `.py` 文件执行 |
+| **严禁 `fdtd.set("dimension", "2D")`** | API 接受但仿真仍按 3D 运行，监视器数据全为零 |
+| **2D/quasi-2D 必须设 `auto shutoff min`** | 默认自动关断 ~0.04 ps，光未到达监视器 |
+| **宽带波长 `wavelengths[0]` 是最长波** | 频率线性递增，波长递减 |
+| **print 特殊字符 -> GBK 乱码** | Windows 终端 GBK 编码报错 |
+| **Bash 不支持 `&` 操作符** | `&` 是 PowerShell 语法 |
+| **改仿真模式后清除旧数据** | skip-if-exists 跳过所有重跑 |
+| **不用 `-c` 跑复杂 Python** | 引号嵌套与反斜杠冲突 |
 
 ## 参考文档索引
 
@@ -267,6 +234,16 @@ plt.savefig(os.path.join(pic_dir, "plot.png"))
 | `references/api-reference.md` | 需要了解会话管理、SimObject、数据传递、lumopt 等高级 API 时 |
 | `references/common-errors.md` | 运行报错需要排查时 |
 | `references/diffraction.md` | 涉及孔衍射、Airy 环、远场/近场分析时 |
+
+## 子技能索引
+
+全流程过大时可按阶段拆开使用：
+
+| 子技能 | 用途 | 命令 |
+|--------|------|------|
+| `LumericalFDTD-modeling` | 仅构建几何模型，输出建模脚本 | `/fdtd-model` |
+| `LumericalFDTD-simulation` | 仅执行仿真 + debug，输出 .fsp/.npz | `/fdtd-simulate` |
+| `LumericalFDTD-analysis` | 仅分析数据 + 绘图，输出 .png | `/fdtd-analyze` |
 
 ## 文件管理规则（必须遵守）
 
