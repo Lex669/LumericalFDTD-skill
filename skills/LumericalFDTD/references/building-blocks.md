@@ -8,6 +8,9 @@
   - [标准 3D](#标准-3d)
   - [Quasi-2D](#quasi-2dxy-截面为无限仅-xz-平面有效)
 - [材料设置](#材料设置)
+  - [addmaterial() vs set('material', ...)](#addmaterial-vs-setmaterial-)
+  - [创建自定义折射率材料](#创建自定义折射率材料的正确方式)
+  - [常用内置材料](#常用内置材料-1)
 - [几何结构](#几何结构)
   - [矩形块 (addrect)](#矩形块-addrect)
   - [圆形孔 (addcircle)](#圆形孔-addcircle)
@@ -19,6 +22,7 @@
 - [监视器](#监视器)
   - [功率监视器 (addpower)](#功率监视器-addpower)
   - [场分布监视器 (addprofile)](#场分布监视器-addprofile)
+  - [2D 监视器属性限制](#2d-监视器属性限制)
 - [结果提取](#结果提取)
 - [网格覆盖 (Mesh Override)](#网格覆盖-mesh-override)
 - [参数扫描模式](#参数扫描模式)
@@ -28,10 +32,16 @@
 
 ## 仿真区域 (FDTD Region)
 
+> **🔴 2025 R2 关键**：`lumapi.FDTD()` 构造函数后**必须立即显式调用 `fdtd.addfdtd()`** 才能创建 FDTD 求解器区域。构造函数返回后当前选中对象是根节点 `'model'`，在 `addfdtd()` 之前任何 `fdtd.set(...)` 都会报错（`"no items are currently selected"` 或 `"property 'x' was not found"`）。
+>
+> **严禁调用 `fdtd.newproject()`**：它会重置整个项目，销毁构造函数已创建的所有对象，导致 `'FDTD'` 求解器丢失。
+
 ### 标准 3D
 
 ```python
-fdtd.addfdtd()
+# 2025 R2 正确初始化
+fdtd = lumapi.FDTD(hide=True)
+fdtd.addfdtd()                          # ← 必须显式调用！不可省略
 fdtd.set("x", 0)
 fdtd.set("y", 0)
 fdtd.set("z", 0)
@@ -82,9 +92,38 @@ fdtd.set("auto shutoff min", 3000e-15)  # 必须设！quasi-2D 自动关断过�
 
 ## 材料设置
 
-**核心原则**：不要使用 `addmaterial` 后跟 `set("type", ...)` —— `type` 属性不可用。直接用内置材料名称。
+**核心原则**：内置材料直接引用名称字符串，不需要 `addmaterial()`。`addmaterial()` 仅用于创建全新的自定义材料。
 
-**常用内置材料**：
+### addmaterial() vs set('material', ...) — 两个不同的概念
+
+```python
+# addmaterial('<BaseType>') — 创建新材料到项目
+#   参数是 Lumerical 基类型，不是材料实例名！
+fdtd.addmaterial('Dielectric')      # ✅ 创建新的介质材料
+fdtd.addmaterial('Metal')           # ✅ 创建新的金属材料
+fdtd.addmaterial('Semiconductor')   # ✅ 创建新的半导体材料
+
+# ❌ 常见错误：
+fdtd.addmaterial('SiO2 (Glass) - Palik')  # 这是材料实例名，不是基类型！
+fdtd.addmaterial('(n=1.47)')              # 这是 .lsf 脚本语法，Python API 不支持！
+
+# set('material', '<Name>') — 给结构赋材料
+#   参数是材料名称（内置材料实例名或自定义材料名）：
+fdtd.set('material', 'SiO2 (Glass) - Palik')                    # ✅ 引用内置
+fdtd.set('material', 'PEC (Perfect Electrical Conductor)')      # ✅ 引用内置
+fdtd.set('material', 'etch')                                    # ✅ 挖空
+```
+
+### 创建自定义折射率材料的正确方式
+
+```python
+fdtd.addmaterial('Dielectric')          # 步骤 1：创建基类型 Dielectric
+fdtd.set('name', 'my_custom')           # 步骤 2：命名
+fdtd.set('index', 1.47)                 # 步骤 3：设置折射率
+# 此后可 fdtd.set('material', 'my_custom')
+```
+
+### 常用内置材料
 
 | 类别 | 材料名 |
 |------|--------|
@@ -130,17 +169,20 @@ fdtd.set("material", "etch")
 
 > 函数名是 `addpoly`，不是 `addpolygon`。
 
-用于圆度研究、多边形孔等非圆形截面。**必须用 N×2 顶点矩阵**，不能用 `set("x", array)` + `set("y", array)`：
+用于圆度研究、多边形孔等非圆形截面。**必须用 N×2 NumPy 数组**，不能用 `set("x", array)` + `set("y", array)`，也不能用 Python `list of tuples`：
 
 ```python
 n_sides = 6
 angles = np.linspace(0, 2*np.pi, n_sides, endpoint=False)
 xv = radius * np.cos(angles)
 yv = radius * np.sin(angles)
-vertices = np.column_stack([xv, yv])  # N×2 矩阵
+vertices = np.column_stack([xv, yv])  # N×2 NumPy 数组 — ✅ 唯一可用格式
 
 fdtd.addpoly()
-fdtd.set("vertices", vertices)
+fdtd.set("vertices", vertices)        # ✅ np.array → Lumerical Matrix
+```
+
+> **🔴 顶点类型陷阱**：`fdtd.set("vertices", ...)` 只接受 NumPy 数组。Python `list of tuples` `[(x1,y1), ...]` 报 `"Unsupported data type"`，`flat list` `[x1,y1,x2,y2,...]` 报 `"Expected type is: Matrix"`。
 fdtd.set("z", 0)
 fdtd.set("z span", thickness + 10e-6)
 fdtd.set("material", "etch")
@@ -229,6 +271,38 @@ fdtd.set("z", z_monitor)
 ```
 
 > **关键约束**：监视器 z 位置必须在仿真域 z_span 范围内（`z_min < z_monitor < z_max`），否则会报 `Can not find result 'E'`。
+
+### 2D 监视器属性限制
+
+2D FDTD 的监视器比 3D 少一些属性。以下属性在 2D 模式下**不可用**：
+
+| 不可用属性 | 适用监视器类型 | 替代方案 |
+|-----------|--------------|---------|
+| `far field filter` | 仅 3D addpower | 2D 远场需通过脚本后处理（FFT 投影） |
+| `far field filter a` | 仅 3D addpower | 同上 |
+| `far field points` | 仅 3D addpower | 改用 `frequency points` |
+| `record field in time` | 仅 addtime（时域监视器） | addprofile 改用 `frequency points` + `output Ez` |
+
+```python
+# ✅ 正确的 2D 功率监视器（不含远场属性）
+fdtd.addpower()
+fdtd.set("name", "monitor_trans")
+fdtd.set("monitor type", "2D Z-normal")
+fdtd.set("x span", x_span)
+fdtd.set("y span", y_span)
+fdtd.set("z", z_monitor)
+fdtd.set("frequency points", 200)       # 频域采样（而非 far field points）
+
+# ✅ 正确的 2D 场分布监视器（不含时域记录属性）
+fdtd.addprofile()
+fdtd.set("name", "field_xy")
+fdtd.set("monitor type", "2D Z-normal")
+fdtd.set("x span", x_span)
+fdtd.set("y span", y_span)
+fdtd.set("z", z_monitor)
+fdtd.set("frequency points", 100)       # 频域采样（而非 record field in time）
+fdtd.set("output Ez", 1)                # 输出 Ez 分量
+```
 
 ---
 

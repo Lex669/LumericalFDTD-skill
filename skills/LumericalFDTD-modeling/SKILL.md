@@ -85,13 +85,19 @@ with lumapi.FDTD(hide=True) as fdtd:
 
 | 约束 | 说明 |
 |------|------|
-| 不用 `addmaterial` + `set("type",...)` | 直接用内置材料名称字符串 |
+| **2025 R2 必须显式 `addfdtd()`** | `lumapi.FDTD()` 后立即调用 `fdtd.addfdtd()`，否则所有 set 报错 |
+| **严禁 `fdtd.newproject()`** | 重置项目会销毁 `'FDTD'` 求解器 |
+| `set()` vs `setnamed()` 区别 | `set()` 对当前选中对象操作；`add*()` 会改变当前选中。不确定时用 `setnamed()` |
+| 不用 `addmaterial` 创建已有材料 | `addmaterial()` 参数是基类型（`'Dielectric'`），不是材料实例名。内置材料直接用 `set('material', '全名')` |
 | 材料全名不可简写 | `"PEC (Perfect Electrical Conductor)"` 不是 `"PEC"` |
+| `addmaterial('(n=1.47)')` 不支持 | 这是 .lsf 语法，Python API 不接受。用内置材料或 `addmaterial('Dielectric')` + `set('index', 1.47)` |
 | 多边形函数名是 `addpoly` | 不是 `addpolygon` |
 | `addcone` 不存在 | 用多层 `addcircle` 堆叠替代 |
 | 多边形不支持 `mesh order` | 省略该 set 语句 |
-| 多边形顶点用 N×2 矩阵 | `set("vertices", vertices)` 而非分别 set x/y |
+| 多边形顶点用 N×2 **NumPy 数组** | `set("vertices", np.array(...))`，Python `list of tuples` 报 `Unsupported data type` |
 | **严禁 `fdtd.set("dimension", "2D")`** | 用 quasi-2D 方案：3D + `y_span=0.2um` + Periodic BC |
+| 2D 监视器无 `far field filter` | 仅用 `frequency points` 做频域采样 |
+| 2D 监视器无 `record field in time` | addprofile 改用 `frequency points` |
 | raw string 不能以反斜杠结尾 | 用 `"C:\\path\\"` 双反斜杠 |
 
 ## 2D / Quasi-2D 建模

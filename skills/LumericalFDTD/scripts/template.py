@@ -40,8 +40,8 @@ output_dir = "__OUTPUT_DIR__"
 # 仿真构建
 # ==========================================
 with lumapi.FDTD(hide=True) as fdtd:
-    # --- 仿真区域 ---
-    fdtd.addfdtd()
+    # --- 2025 R2 仿真区域（必须显式 addfdtd()）---
+    fdtd.addfdtd()                          # ← 不可省略！构造函数不自动创建 FDTD 求解器
     fdtd.set("x", 0)
     fdtd.set("y", 0)
     fdtd.set("z", 0)
@@ -51,7 +51,7 @@ with lumapi.FDTD(hide=True) as fdtd:
     fdtd.set("mesh accuracy", 2)
     fdtd.set("pml layers", 8)
 
-    # --- 衬底 ---
+    # --- 衬底（内置材料直接用 set('material', '全名')）---
     fdtd.addrect()
     fdtd.set("name", "substrate")
     fdtd.set("x span", x_span)

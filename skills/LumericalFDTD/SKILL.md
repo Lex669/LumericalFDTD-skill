@@ -141,12 +141,17 @@ structure_params = {...}
 
 # 3. 创建仿真会话
 with lumapi.FDTD(hide=True) as fdtd:
-    # 3a. 仿真区域
-    # 3b. 材料 / 衬底
+    # 3a. 仿真区域 — 2025 R2 必须显式调用 addfdtd()！
+    fdtd.addfdtd()
+    fdtd.set("x", 0)
+    fdtd.set("x span", x_span)
+    # ... 其余 FDTD 属性 ...
+
+    # 3b. 材料 / 衬底 — 内置材料直接用 set("material", "全名")
     # 3c. 几何结构（从底到顶）
     # 3d. 网格覆盖（可选，精细结构才加）
     # 3e. 光源
-    # 3f. 监视器
+    # 3f. 监视器 — 2D 模式下勿用 far field filter / record field in time
     # 3g. 保存 -> 运行 -> 提取结果
     fdtd.save(os.path.join(fsp_dir, "simulation.fsp"))
     fdtd.run()
@@ -207,14 +212,20 @@ project_name_analysis.py  # 分析（纯数据读取，不调 lumapi.FDTD）
 
 | 约束 | 说明 |
 |------|------|
-| 不用 `addmaterial` + `set("type",...)` | `type` 属性不可用，直接用内置材料名称字符串 |
+| **2025 R2 必须显式 `addfdtd()`** | `lumapi.FDTD()` 后立即调用 `fdtd.addfdtd()`，否则所有 set 报 "no items selected" |
+| **严禁 `fdtd.newproject()`** | 重置项目销毁 `'FDTD'` 求解器，导致 "no items matching the name 'FDTD'" |
+| `set()` vs `setnamed()` 区别 | `set()` 对当前选中对象操作，`setnamed('name', ...)` 按名称查找。`add*()` 会改变当前选中 |
+| 不用 `addmaterial` + `set("type",...)` | `type` 属性不可用；`addmaterial()` 参数是基类型（`'Dielectric'`），不是材料实例名 |
 | 材料全名不可简写 | `"PEC (Perfect Electrical Conductor)"` 不是 `"PEC"` |
+| `addmaterial('(n=1.47)')` 不支持 | `.lsf` 语法在 Python API 无效，用内置材料或 `addmaterial('Dielectric')` + `set('index', 1.47)` |
 | 多边形函数名是 `addpoly` | 不是 `addpolygon` |
 | `addcone` 不存在 | 用多层 `addcircle` 堆叠替代 |
 | 多边形不支持 `mesh order` | 省略该 set 语句 |
 | 监视器必须在仿真域内 | `z_min < monitor_z < z_max`，否则 `Can not find result 'E'` |
-| 多边形顶点用 N×2 矩阵 | `set("vertices", vertices)` 而非分别 set x/y |
+| 多边形顶点用 N×2 **NumPy 数组** | `set("vertices", np.array(...))`，Python list/tuple 报 `Unsupported data type` |
 | 切片结果用 `.copy()` | NumPy 视图原地操作会污染原始数据 |
+| 2D 监视器无 `far field filter` | 2D addpower 不支持远场投影属性，仅用 `frequency points` |
+| 2D 监视器无 `record field in time` | addprofile 不支持时域记录，改用 `frequency points` |
 | raw string 不能以反斜杠结尾 | 用双反斜杠 `"C:\\path\\"` |
 | **严禁 `fdtd.set("dimension", "2D")`** | API 接受但仿真仍按 3D 运行，监视器数据全为零 |
 | **2D/quasi-2D 必须设 `auto shutoff min`** | 默认自动关断 ~0.04 ps，光未到达监视器 |

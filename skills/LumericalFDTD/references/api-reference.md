@@ -5,9 +5,11 @@
 ## 目录
 
 1. [会话管理](#会话管理)
+   - [2025 R2 初始化序列](#2025-r2-初始化序列)
 2. [SimObject 类](#simobject-类)
 3. [SimObjectResults](#simobjectresults)
 4. [脚本命令作为方法](#脚本命令作为方法)
+   - [set() vs setnamed() vs select()+set()](#set-vs-setnamed-vs-selectset)
 5. [传递数据](#传递数据)
 6. [lumopt 逆设计优化](#lumopt-逆设计优化)
 7. [lumslurm 作业调度](#lumslurm-作业调度)
@@ -35,6 +37,24 @@ fdtd = lumapi.FDTD(
     remoteArgs={},      # 远程连接 {hostname, port}
 )
 ```
+
+### 2025 R2 初始化序列
+
+> **🔴 关键**：`lumapi.FDTD()` 构造函数在某些条件下不会自动创建 `'FDTD'` 求解器区域。必须显式调用 `fdtd.addfdtd()`。
+
+```python
+# ✅ 正确的 2025 R2 初始化
+fdtd = lumapi.FDTD(hide=True)
+fdtd.addfdtd()                              # ← 必须显式调用！
+# 现在可以安全设置 FDTD 属性
+fdtd.set("x", 0)
+fdtd.set("x span", 10e-6)
+```
+
+**严禁调用 `fdtd.newproject()`**：
+- `lumapi.FDTD()` 已创建新项目
+- `newproject()` 重置项目 → 销毁 `'FDTD'` 求解器 → 后续所有 `setnamed('FDTD', ...)` 报 `"no items matching the name 'FDTD' can be found"`
+- 如需清空项目重新开始，关闭当前会话后创建新的 `lumapi.FDTD()`
 
 ### with 语句（上下文管理器）
 
@@ -122,6 +142,36 @@ fdtd.set("z span", 0.5e-6)
 ```python
 fdtd.addrect(x=0, y=0, z=0, x_span=2e-6)
 ```
+
+### set() vs setnamed() vs select()+set()
+
+这三个方法容易混淆，核心区别在于**当前选中对象**：
+
+```python
+# 初始化后当前选中是根节点 'model'
+fdtd = lumapi.FDTD(hide=True)
+fdtd.addfdtd()                          # ← 选中变为 'FDTD'
+
+# set() — 对当前选中对象设置属性
+fdtd.set("x", 0)                        # ✅ 设置 FDTD 的 x（FDTD 是当前选中）
+fdtd.set("dimension", "2D")             # ✅ 设置 FDTD 的 dimension
+
+fdtd.addrect()                          # ← 选中变为新增的 rect！
+fdtd.set("x", 0)                        # ⚠️ 设置 rect 的 x，不是 FDTD！
+
+# setnamed() — 按名称查找并设置（不改变当前选中）
+fdtd.setnamed("FDTD", "dimension", "2D")  # ✅ 始终有效，名称必须精确匹配
+fdtd.setnamed("source", "wavelength start", 80e-6)  # ✅ 设置光源
+
+# select() + set() — 手动切换选中后设置
+fdtd.select("FDTD")                     # 切换到 FDTD
+fdtd.set("dimension", "2D")             # 现在设置 FDTD 的属性
+
+fdtd.select("monitor_trans")            # 切换到监视器
+fdtd.set("z", 50e-6)                    # 设置监视器的 z
+```
+
+> **原则**：不确定当前选中对象时用 `setnamed()` 最安全。每次 `add*()` 调用都会改变当前选中。
 
 ---
 
