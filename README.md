@@ -25,8 +25,8 @@ Ansys Lumerical FDTD 仿真自动化 + 学术论文深度分析，Claude Code �
 
 ```bash
 # Claude Code 插件市场安装
-/plugin marketplace add Lex669/LumericalFDTD-skill
-/plugin install LumericalFDTD@LumericalFDTD
+/plugin marketplace add Lex669/AutoSim
+/plugin install LumericalFDTD@AutoSim
 ```
 
 ## 快速开始
