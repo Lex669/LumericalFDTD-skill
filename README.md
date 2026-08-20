@@ -1,5 +1,10 @@
 # LumericalFDTD Plugin
 
+![version](https://img.shields.io/badge/version-1.1.0-blue)
+![license](https://img.shields.io/badge/license-MIT-green)
+![Ansys Lumerical](https://img.shields.io/badge/Ansys%20Lumerical-FDTD-orange)
+![Made for](https://img.shields.io/badge/Made%20for-Claude%20Code-black)
+
 Ansys Lumerical FDTD 仿真自动化 + 学术论文深度分析，Claude Code 插件。
 
 ## 功能概览
@@ -13,7 +18,7 @@ Ansys Lumerical FDTD 仿真自动化 + 学术论文深度分析，Claude Code �
 | `LumericalFDTD-analysis` | `/fdtd-analyze` | 分析 .npz 数据 + 生成发表级图表 |
 | `LumericalFDTD` | `/fdtd-full` | 端到端全流程：建模 → 仿真 → 分析 → 验收 |
 
-**能力覆盖**：衍射分析、超表面、波导、光栅、TGV 结构、场传播、参数扫描、逆设计优化
+**能力覆盖**：衍射分析、超表面、波导、光栅、TGV 结构、场传播、参数扫描、逆设计优化。
 
 ### 📄 论文总结
 
@@ -28,6 +33,9 @@ Ansys Lumerical FDTD 仿真自动化 + 学术论文深度分析，Claude Code �
 /plugin marketplace add Lex669/AutoSim
 /plugin install LumericalFDTD@AutoSim
 ```
+
+> [!NOTE]
+> 首次使用时，插件会自动探测本机 Lumerical Python 解释器，无需手动配置。
 
 ## 快速开始
 
@@ -65,6 +73,9 @@ Ansys Lumerical FDTD 仿真自动化 + 学术论文深度分析，Claude Code �
 读取 data/results.npz，画透射谱和场分布图。
 ```
 
+> [!TIP]
+> 分析脚本（`*_analysis.py`）修改后可反复执行，无需重跑仿真。
+
 ## 项目结构
 
 每个仿真项目遵循固定目录结构：
@@ -81,9 +92,9 @@ MyProject/
 
 ## 依赖
 
-- **Ansys Lumerical FDTD** (2025 R2 或兼容版本)
+- **Ansys Lumerical FDTD**（2025 R2 或兼容版本）
 - Lumerical 内置 Python 解释器（自动探测，无需用户配置）
-- Python packages: `numpy`, `matplotlib`（Lumerical 解释器自带）
+- Python packages：`numpy`、`matplotlib`（Lumerical 解释器自带）
 
 ## 论文总结功能
 
@@ -97,3 +108,7 @@ MyProject/
 ## License
 
 MIT
+
+## Star History
+
+[![Star History Chart](https://api.star-history.com/svg?repos=Lex669/LumericalFDTD-skill&type=Date)](https://star-history.com/#Lex669/LumericalFDTD-skill&Date)
