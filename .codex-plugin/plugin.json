@@ -1,0 +1,41 @@
+{
+  "name": "LumericalFDTD",
+  "version": "1.1.0",
+  "description": "Ansys Lumerical FDTD Python API automation — end-to-end photonics simulation pipeline with four fine-grained skills (modeling, simulation, analysis, full-pipeline). Includes deep academic paper summarization with per-figure analysis. Covers diffraction, metasurfaces, waveguides, gratings, TGV structures, and general optics/photonics design.",
+  "author": {
+    "name": "Lex669",
+    "email": "Lexy2216@outlook.com"
+  },
+  "homepage": "https://github.com/Lex669/LumericalFDTD-skill",
+  "repository": "https://github.com/Lex669/LumericalFDTD-skill",
+  "license": "MIT",
+  "keywords": [
+    "lumerical",
+    "fdtd",
+    "photonics",
+    "optics",
+    "simulation",
+    "ansys",
+    "diffraction",
+    "waveguide",
+    "metasurface",
+    "TGV",
+    "paper-summarization",
+    "academic",
+    "figure-analysis",
+    "literature-review"
+  ],
+  "skills": "./skills/",
+  "interface": {
+    "displayName": "Lumerical FDTD",
+    "shortDescription": "Ansys Lumerical FDTD photonics simulation automation — modeling, simulation and analysis — plus deep academic paper summarization.",
+    "developerName": "Lex669",
+    "category": "Design",
+    "capabilities": [],
+    "defaultPrompt": [
+      "用 FDTD 仿真一个光栅结构的透过率谱",
+      "搭建金属超表面单元结构并分析远场响应",
+      "深度总结这篇论文并逐图给出分析"
+    ]
+  }
+}
