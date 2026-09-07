@@ -4,8 +4,9 @@
 ![license](https://img.shields.io/badge/license-MIT-green)
 ![Ansys Lumerical](https://img.shields.io/badge/Ansys%20Lumerical-FDTD-orange)
 ![Made for](https://img.shields.io/badge/Made%20for-Claude%20Code-black)
+![Made for](https://img.shields.io/badge/Made%20for-Codex-black)
 
-Ansys Lumerical FDTD 仿真自动化 + 学术论文深度分析，Claude Code 插件。
+Ansys Lumerical FDTD 仿真自动化 + 学术论文深度分析，Claude Code / Codex CLI 双生态插件。
 
 ## 功能概览
 
@@ -28,11 +29,25 @@ Ansys Lumerical FDTD 仿真自动化 + 学术论文深度分析，Claude Code �
 
 ## 安装
 
+### Claude Code
+
 ```bash
 # Claude Code 插件市场安装
 /plugin marketplace add Lex669/AutoSim
 /plugin install LumericalFDTD@AutoSim
 ```
+
+### Codex CLI（v0.121+）
+
+```bash
+# 注册 AutoSim 插件市场
+codex plugin marketplace add Lex669/AutoSim
+# 安装插件（autosim 为清单注册名，可用 codex plugin marketplace list 查看）
+codex plugin add LumericalFDTD@autosim
+```
+
+> [!NOTE]
+> Codex 端注册 `skills/` 下的 5 个技能，用自然语言描述仿真/分析/论文总结任务即可自动调用；`/fdtd-*` 斜杠命令仅在 Claude Code 端可用。
 
 > [!NOTE]
 > 首次使用时，插件会自动探测本机 Lumerical Python 解释器，无需手动配置。
