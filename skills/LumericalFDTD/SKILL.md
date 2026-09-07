@@ -25,14 +25,14 @@ description: |
 4. **运行仿真脚本** — 用 Bash 工具调用 Lumerical Python 解释器执行 `*_sim.py`
 5. **检查输出** — 确认 `.fsp` 和 `.npz` 文件已生成，检查日志无致命错误
 6. **如遇错误** — 读取 `references/common-errors.md`，修复脚本，回到步骤 4。**最多重试 5 次**，超过则向用户报告所有尝试过的修复及错误，请求人工介入
-7. **编写并运行 `*_analysis.py`** — 读取 `.npz` 数据，计算指标，绘图保存 `.png`
+7. **编写并运行 `*_analysis.py`** — 读取 `.npz` 数据，计算指标，绘图保存 `.png` 到**新建的 `pic/<label>_run_<NN>/` 子目录**（归档约定见「文件管理规则」；辅助函数 `new_run_dir` 见 `LumericalFDTD-analysis` skill 模板，只写入 `*_analysis.py`，不写入 `*_sim.py`）
 
 > 仅需分析已有数据 → 改用 `LumericalFDTD-analysis` skill
 
 ### 阶段 C：验收
 
-8. **验证结果** — 检查 `.png` 图表是否满足验收条件（透射率、模式分布、衍射环等），不满足则调整 `*_sim.py` 参数回到步骤 4
-9. **更新 REPORT.md** — 记录仿真参数、结果摘要、图表说明
+8. **验证结果** — 进入**最新 run 子目录**（`NN` 最大者）检查其中的 `.png` 图表是否满足验收条件（透射率、模式分布、衍射环等），不满足则调整 `*_sim.py` 参数回到步骤 4
+9. **更新 REPORT.md** — 记录仿真参数、结果摘要、图表说明，并注明本次图表的 run 目录路径（如 `pic/glass_gaussian_run_02/`）
 
 ### 错误处理循环（含最大重试上限）
 
@@ -69,7 +69,7 @@ if 重试次数 >= 最大重试:
 
 - [ ] `fsp/*.fsp` — 仿真项目文件
 - [ ] `data/*.npz` — 仿真结果数据
-- [ ] `pic/*.png` — 结果图表
+- [ ] `pic/*_run_*/*.png` — 结果图表（最近一次 run 子目录内）
 - [ ] `*_sim.py` — 仿真脚本
 - [ ] `*_analysis.py` — 分析脚本
 
@@ -264,26 +264,33 @@ project_name_analysis.py  # 分析（纯数据读取，不调 lumapi.FDTD）
 |------|---------|
 | `fsp/` | `.fsp` 仿真项目文件 + `*_p0.log` 仿真日志 |
 | `data/` | `.npz` 仿真结果数据 + `.json` 元数据 |
-| `pic/` | `.png/.jpg` 图片和图表 |
+| `pic/` | 每次分析运行一个 `<label>_run_<NN>/` 子目录，内含 `.png` 图表 |
 | 根目录 | `.py` Python脚本 + `.md` 文档 |
 
 ### 规则细节
 1. 创建新项目时，必须先在项目目录内建立 `fsp/`、`data/`、`pic/` 三个子目录
-2. Python 脚本中 `fdtd.save()` 保存 `.fsp` 到 `fsp/` 目录，图表 `plt.savefig()` 保存到 `pic/` 目录，数据 `np.savez()` 保存到 `data/` 目录
-3. 子实验目录（如 `TGV_Waist_vs_Lambda/`）内部也遵循同样的 `fsp/data/pic` 分类
-4. 禁止将 `.fsp`、`.npz`、`.png` 文件散落在项目根目录
-5. 每次完成仿真+分析后，更新项目根目录的 `REPORT.md`，追加新结果和图表说明
+2. Python 脚本中 `fdtd.save()` 保存 `.fsp` 到 `fsp/` 目录，数据 `np.savez()` 保存到 `data/` 目录
+3. 每次运行分析脚本，必须在 `pic/` 下新建 `<label>_run_<NN>` 子目录：`label` 为仿真内容概括标签（1–3 个关键词 snake_case，如 `glass_gaussian`、`si_planewave_1550nm`；用户未指定时由模型根据材料/光源/关键参数生成），`NN` 为同标签序号（`01` 起，扫描已有 `<label>_run_*` 目录取最大 + 1）。所有 `plt.savefig()` 写入该子目录，**禁止直接写 `pic/` 根目录**——每次运行保留独立历史，固定文件名不互相覆盖（完整约定与辅助函数 `new_run_dir` 见 `LumericalFDTD-analysis` skill）
+4. 子实验目录（如 `TGV_Waist_vs_Lambda/`）内部也遵循同样的 `fsp/data/pic` 分类，`pic/` 内同样按 run 子目录归档
+5. 禁止将 `.fsp`、`.npz`、`.png` 文件散落在项目根目录
+6. 每次完成仿真+分析后，更新项目根目录的 `REPORT.md`，追加新结果和图表说明，并注明图表所在 run 目录路径（如 `pic/glass_gaussian_run_02/`）
 
 ### 脚本示例路径
 
+（`new_run_dir()` 辅助函数只定义在 `*_analysis.py` 中，此处为路径示意。）
+
 ```python
 project_dir = r"C:\Users\Lex\Documents\FDTD\MyProject"
-# 确保目录存在
+# 确保基础目录存在
 for sub in ["fsp", "data", "pic"]:
     os.makedirs(os.path.join(project_dir, sub), exist_ok=True)
 
 # 文件保存
 fdtd.save(os.path.join(project_dir, "fsp", "simulation.fsp"))
 np.savez(os.path.join(project_dir, "data", "results.npz"), E=Ex, ...)
-plt.savefig(os.path.join(project_dir, "pic", "field.png"), dpi=150)
+
+# 分析阶段：新建本次运行的图表子目录（label 按仿真内容取，如 glass_gaussian）
+pic_dir = os.path.join(project_dir, "pic")
+run_dir = new_run_dir(pic_dir, "glass_gaussian")   # -> pic/glass_gaussian_run_01/
+plt.savefig(os.path.join(run_dir, "field.png"), dpi=150)
 ```

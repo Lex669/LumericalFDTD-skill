@@ -99,7 +99,7 @@ codex plugin add LumericalFDTD@autosim
 MyProject/
 ├── fsp/          # .fsp 仿真项目文件 + 仿真日志
 ├── data/         # .npz 仿真结果数据
-├── pic/          # .png 图表输出
+├── pic/          # 每次运行一个 <label>_run_<NN>/ 子目录 (.png)
 ├── *_sim.py      # 仿真脚本
 ├── *_analysis.py # 分析脚本
 └── REPORT.md     # 仿真报告
@@ -117,6 +117,7 @@ MyProject/
 
 ## 版本
 
+- **1.2.0** — 图表归档约定：每次分析运行写入 `pic/<label>_run_<NN>/` 子目录（label 按仿真内容分类，NN 自动递增），保留全部历史
 - **1.1.0** — Skill 拆分（modeling/simulation/analysis/full），新增 slash commands，参考文件增强
 - **1.0.0** — 初始版本
 

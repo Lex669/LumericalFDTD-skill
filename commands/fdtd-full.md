@@ -16,7 +16,7 @@ description: FDTD全流程自动化 — 从零开始完成建模→仿真→分�
 4. 运行仿真脚本 — 调用 Lumerical Python 解释器
 5. 检查输出 — 确认 `.fsp` 和 `.npz` 已生成
 6. 如遇错误 — 查 `common-errors.md`，修复后重跑（最多 5 次）
-7. 编写并运行 `*_analysis.py` — 读取 `.npz`，绘图保存 `.png`
+7. 编写并运行 `*_analysis.py` — 读取 `.npz`，绘图保存 `.png`（新建的 run 子目录）
 
 ### 阶段 C：验收
 8. 验证结果 — 检查图表是否满足验收条件
@@ -25,6 +25,6 @@ description: FDTD全流程自动化 — 从零开始完成建模→仿真→分�
 ### 完成定义
 - [ ] `fsp/*.fsp` — 仿真项目文件
 - [ ] `data/*.npz` — 仿真结果数据
-- [ ] `pic/*.png` — 结果图表
+- [ ] `pic/*_run_*/*.png` — 结果图表（最近一次 run 子目录内）
 - [ ] `*_sim.py` — 仿真脚本
 - [ ] `*_analysis.py` — 分析脚本

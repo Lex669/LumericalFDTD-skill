@@ -28,13 +28,32 @@ ls path/to/project/data/
 
 ### 2. 编写分析脚本
 
-按模板生成 `*_analysis.py`（纯数据分析，不调 `lumapi.FDTD`）：
+按模板生成 `*_analysis.py`（纯数据分析，不调 `lumapi.FDTD`）。
+
+> **每次运行分析脚本必须新建独立的 run 子目录保存图表（`pic/<label>_run_<NN>/`），禁止直接写入 `pic/` 根目录**。下方模板内嵌的 `new_run_dir()` 辅助函数及调用**必须完整保留**，不得删除或改写；`label` 需按本次仿真内容填写（规则见「图表归档约定」）。
 
 ```python
+import os
+import glob
 import numpy as np
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+
+def new_run_dir(pic_dir, label):
+    """本次运行的图表目录 pic/<label>_run_<NN>（NN 自动递增，从 01 起补零）"""
+    n = 0
+    for d in glob.glob(os.path.join(pic_dir, label + "_run_*")):
+        suffix = os.path.basename(d)[len(label) + 5:]  # 去掉 "<label>_run_" 前缀
+        if suffix.isdigit():
+            n = max(n, int(suffix))
+    run_dir = os.path.join(pic_dir, f"{label}_run_{n + 1:02d}")
+    os.makedirs(run_dir, exist_ok=True)
+    return run_dir
+
+# label = 本次仿真内容的 1-3 个区分关键词（snake_case，如 glass_gaussian / si_planewave_1550nm）
+pic_dir = os.path.join(project_dir, "pic")
+run_dir = new_run_dir(pic_dir, "glass_gaussian")
 
 # 加载数据
 data = np.load(os.path.join(data_dir, "results.npz"), allow_pickle=True)
@@ -53,7 +72,7 @@ ax.plot(wavelengths * 1e6, transmission)
 ax.set_xlabel("Wavelength (μm)")
 ax.set_ylabel("Transmission")
 ax.set_title("Transmission Spectrum")
-fig.savefig(os.path.join(pic_dir, "transmission.png"), dpi=150)
+fig.savefig(os.path.join(run_dir, "transmission.png"), dpi=150)
 plt.close()
 ```
 
@@ -63,11 +82,11 @@ plt.close()
 & 'PYTHON_PATH' 'path/to/project_analysis.py'
 ```
 
-分析脚本秒级完成，可反复执行迭代图表样式。
+分析脚本秒级完成，可反复执行迭代图表样式；**每次运行都会在 `pic/` 下新建一个递增序号的 run 子目录**，历史图表自动保留、不会被覆盖，最新一版在序号最大（`NN` 最大）的目录中。
 
 ### 4. 验证结果
 
-检查生成的 `.png` 图表是否满足验收条件：
+进入**最新 run 子目录**（`NN` 最大者，如 `pic/glass_gaussian_run_02/`），检查其中的 `.png` 图表是否满足验收条件：
 
 | 验收维度 | 检查项 |
 |---------|--------|
@@ -75,6 +94,12 @@ plt.close()
 | **场分布** | 模式图样是否符合物理预期？ |
 | **衍射图案** | Airy 环是否可见？中央亮斑尺寸是否符合 `r₁ = 1.22λL/D`？ |
 | **图表质量** | 坐标轴标注、单位、图例是否齐全？分辨率是否足够？ |
+
+## 图表归档约定（必须遵守）
+
+1. **每次运行一个目录**：运行分析脚本即新建 `pic/<label>_run_<NN>/` 子目录，所有图表保存其中。子目录内保留固定文件名（`transmission.png`、`field.png` 等）不再改动——由目录区分内容与版本。**禁止直接 `savefig` 到 `pic/` 根目录**。本文件「常用分析类型」中的代码片段仅为绘图逻辑，成文脚本必须补 `plt.savefig(os.path.join(run_dir, "xxx.png"), dpi=150)`。
+2. **标签由内容生成**：若用户未指定标签，由模型根据本次仿真内容取 1–3 个最具区分度的关键词——材料（`glass`/`si`）、光源类型（`gaussian`/`planewave`）、短关键参数（`1550nm`），用下划线连接，如 `glass_gaussian`。**默认小写 ASCII snake_case**（仅字母/数字/下划线，无空格无标点），保证跨平台兼容；用户偏好中文标签（如 `玻璃_高斯`）亦可。同一内容的后续运行复用同一标签。
+3. **序号自动递增**：`NN` 从 `01` 起两位补零；同标签第 N 次运行取 `pic/<label>_run_*` 中最大序号 + 1——由 `new_run_dir()` 自动扫描完成，禁止人工猜测序号。判断"最新运行"一律以最大 `NN` 为准（数值比较，勿用字符串排序）。
 
 ## 常用分析类型
 
@@ -114,8 +139,8 @@ wl_long_idx = 0              # 最长波长（低频端）
 ## 输出
 
 - `*_analysis.py` — 分析脚本（可反复迭代）
-- `pic/*.png` — 结果图表（dpi ≥ 150）
-- 可选：更新 `REPORT.md` — 结果摘要和图表说明
+- `pic/<label>_run_<NN>/` — 每次运行一个子目录，内含固定名图表（`transmission.png`、`field.png` 等，dpi ≥ 150）
+- 可选：更新 `REPORT.md` — 结果摘要和图表说明，注明本次图表的 run 目录（如 `pic/glass_gaussian_run_02/`）
 
 ## 参考文档
 

@@ -72,7 +72,7 @@ skills/
 
 - **Simulation/analysis separation is mandatory.** Heavy FDTD runs go in `*_sim.py`; data processing and plotting go in `*_analysis.py`. The intermediate interface is `.npz` files. This lets users tweak plots without re-running simulations.
 - **First-use environment probing.** Each session starts by probing the OS and locating the Lumerical Python interpreter (`python.exe` on Windows, `python` on Linux). Common paths are tried first; if none work, the user is asked.
-- **Fixed directory structure per project.** Every simulation project must have `fsp/`, `data/`, `pic/` subdirectories. No output files in the root.
+- **Fixed directory structure per project.** Every simulation project must have `fsp/`, `data/`, `pic/` subdirectories. Analysis charts go in content-labeled per-run subfolders `pic/<label>_run_<NN>/` (one folder per analysis run; NN auto-increments per label). No output files in the root.
 - **No `addmaterial` + `set("type",...)`.** Use built-in material name strings directly (e.g., `"SiO2 (Glass) - Palik"`, `"PEC (Perfect Electrical Conductor)"`). Several API methods have non-obvious names or don't exist — see `references/common-errors.md` for the full list.
 - **Max 5 retries for error loop.** The simulation debug loop caps at 5 automatic retries. If all fail, escalate to user with a summary of attempts.
 - **Skill granularity.** LumericalFDTD is split into 4 skills (full-pipeline + 3 phase-specific) so users can invoke only the phase they need without loading the full pipeline context.
