@@ -115,11 +115,33 @@ MyProject/
 
 支持 PDF 路径、Arxiv URL、DOI。输出中文 8 章节结构化报告：基本信息、研究动机、方法、实验、图表详解、核心贡献、局限、总结。每个图表从类型、内容、关键观察、与论点关系、质量评价 5 个维度分析。
 
-## 版本
+## 更新日志
 
-- **1.2.0** — 图表归档约定：每次分析运行写入 `pic/<label>_run_<NN>/` 子目录（label 按仿真内容分类，NN 自动递增），保留全部历史
-- **1.1.0** — Skill 拆分（modeling/simulation/analysis/full），新增 slash commands，参考文件增强
-- **1.0.0** — 初始版本
+### 1.2.0 · 2026-09-07 — 图表归档 + Codex CLI 适配
+
+- **图表归档约定**：每次分析运行写入独立的 `pic/<label>_run_<NN>/` 子目录（`label` 按仿真内容分类，`NN` 自动递增），历史图表全部保留，便于跨版本对比。
+- `LumericalFDTD-analysis`、`LumericalFDTD` 两个 skill，以及 `/fdtd-analyze`、`/fdtd-full` 命令与 `CLAUDE.md` 同步更新。
+- 新增 `.codex-plugin/plugin.json`，插件同时支持 **Claude Code 与 Codex CLI（v0.121+）**；Codex 端注册 `skills/` 下的 5 个技能，README 补充 Codex 安装指引。
+
+### 1.1.0 · 2026-06-17 — Skill 分级拆分
+
+- 单一 skill 拆分为 4 个分级模块：`LumericalFDTD-modeling`（建模）、`LumericalFDTD-simulation`（仿真 + 自动 debug）、`LumericalFDTD-analysis`（数据分析与绘图）、`LumericalFDTD`（端到端全流程）。
+- 新增 4 个斜杠命令：`/fdtd-model`、`/fdtd-simulate`、`/fdtd-analyze`、`/fdtd-full`。
+- 参考文件增强：`common-errors.md`、`building-blocks.md`、`diffraction.md`、`api-reference.md` 大幅扩充。
+- 修复若干 bug（建模 skill、`scripts/template.py` 模板脚本）。
+
+### 1.0.0 · 2026-05-25 ~ 2026-05-29 — 插件化
+
+- 从 `git clone` 手动安装迁移为 Claude Code 插件安装方式。
+- 新增 `paper-summarizer` skill：结构化中文论文总结，逐图逐表 5 维度分析，配套 `chart-analysis.md`、`output-template.md` 参考文件。
+- 新增 `CLAUDE.md` 项目说明，README 面向 GitHub 重写。
+- 强化核心工作流：执行仿真是必经阶段，不允许只生成脚本而不运行。
+- 补充 quasi-2D / 2D 维度陷阱，以及 Windows 路径、宽谱光源等常见错误说明。
+
+### 早期迭代 · 2026-05-06 ~ 2026-05-15
+
+- 首版 `SKILL.md` 与 `API_SUMMARY.md`：Lumerical Python API 的建模、仿真与结果提取流程。
+- 建立 `references/` 目录：`api-reference.md`、`building-blocks.md`、`common-errors.md`、`diffraction.md`。
 
 ## License
 
