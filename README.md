@@ -1,6 +1,6 @@
 # LumericalFDTD Plugin
 
-![version](https://img.shields.io/badge/version-1.1.0-blue)
+![version](https://img.shields.io/badge/version-1.2.0-blue)
 ![license](https://img.shields.io/badge/license-MIT-green)
 ![Ansys Lumerical](https://img.shields.io/badge/Ansys%20Lumerical-FDTD-orange)
 ![Made for](https://img.shields.io/badge/Made%20for-Claude%20Code-black)

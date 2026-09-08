@@ -1,6 +1,6 @@
 {
   "name": "LumericalFDTD",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "description": "Ansys Lumerical FDTD Python API automation — end-to-end photonics simulation pipeline with four fine-grained skills (modeling, simulation, analysis, full-pipeline). Includes deep academic paper summarization with per-figure analysis. Covers diffraction, metasurfaces, waveguides, gratings, TGV structures, and general optics/photonics design.",
   "author": {
     "name": "Lex669",
