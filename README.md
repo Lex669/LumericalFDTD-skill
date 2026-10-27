@@ -8,7 +8,7 @@
 
 Ansys Lumerical FDTD 仿真自动化 + 学术论文深度分析，Claude Code / Codex CLI 双生态插件。
 
-项目官网源码位于 [`website/`](website/)，本地预览与 GitHub Pages 部署方式见下方说明。
+项目官网源码位于 [`docs/`](docs/)，本地预览与 GitHub Pages 部署方式见下方说明。
 
 ## 功能概览
 
@@ -154,13 +154,13 @@ MyProject/
 本地预览需要 Node.js 22 或更新版本，在仓库根目录执行：
 
 ```bash
-node website/scripts/build.mjs
-node website/scripts/serve.mjs
+node docs/scripts/build.mjs
+node docs/scripts/serve.mjs
 ```
 
-打开 http://localhost:4173/LumericalFDTD-skill/ ，修改网站源码后重新构建并刷新页面。生成目录 `website/dist/` 不提交到 Git。
+打开 http://localhost:4173/LumericalFDTD-skill/ ，修改网站源码后重新构建并刷新页面。生成目录为 `docs/dist/`，发布时由工作流重新构建。
 
-GitHub Pages 使用 [部署工作流](.github/workflows/pages.yml)：在仓库 **Settings → Pages → Source** 选择 **GitHub Actions**，推送到 `main` 后自动构建并发布，也可在 Actions 中手动运行。Pull request 仅构建验证，不发布。
+GitHub Pages 使用 [部署工作流](.github/workflows/pages.yml)：在仓库 **Settings → Pages → Source** 选择 **GitHub Actions**，推送到 `main` 后自动构建并发布 `docs/dist/`，也可在 Actions 中手动运行。不要选择从分支的 `/docs` 发布，该方式会直接读取尚未替换占位符的 `docs/index.html` 模板。Pull request 仅构建验证，不发布。
 
 ## License
 

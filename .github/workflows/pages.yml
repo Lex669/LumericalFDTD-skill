@@ -4,14 +4,14 @@ on:
   push:
     branches: [main]
     paths:
-      - "website/**"
+      - "docs/**"
       - "README.md"
       - ".codex-plugin/plugin.json"
       - ".github/workflows/pages.yml"
   pull_request:
     branches: [main]
     paths:
-      - "website/**"
+      - "docs/**"
       - "README.md"
       - ".codex-plugin/plugin.json"
       - ".github/workflows/pages.yml"
@@ -36,7 +36,7 @@ jobs:
         with:
           node-version: "22"
       - name: Build and validate static website
-        run: node website/scripts/build.mjs
+        run: node docs/scripts/build.mjs
       - name: Configure Pages
         if: github.event_name != 'pull_request'
         uses: actions/configure-pages@v5
@@ -44,7 +44,7 @@ jobs:
         if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v4
         with:
-          path: website/dist
+          path: docs/dist
   deploy:
     if: github.event_name != 'pull_request'
     needs: build

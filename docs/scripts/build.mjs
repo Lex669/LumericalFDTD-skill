@@ -86,5 +86,5 @@ await copyFile(
 );
 await writeFile(path.join(output, ".nojekyll"), "");
 console.log(
-  `Built LumericalFDTD v${manifest.version} → website/dist (${releases.length} releases, validated page references)`,
+  `Built LumericalFDTD v${manifest.version} → docs/dist (${releases.length} releases, validated page references)`,
 );
