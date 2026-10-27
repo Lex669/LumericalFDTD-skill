@@ -43,15 +43,18 @@ if (!releases.length)
   throw new Error("No semantic-version changelog entries found.");
 if (releases[0][1] !== manifest.version)
   throw new Error("Manifest version and latest README changelog do not match.");
-const releaseHtml = releases
-  .map(([, version, date, title, body], index) => {
-    const items = [...body.matchAll(/^- (.+)$/gm)]
-      .map((match) => `<li>${inline(match[1].trim())}</li>`)
-      .join("");
-    const isoDate = date.trim().match(/^\d{4}-\d{2}-\d{2}/)?.[0];
-    return `<article class="changelog-entry"><div class="release-meta"><h3>v${escapeHtml(version)}</h3>${index === 0 ? '<span class="latest-badge">最新版本</span>' : ""}<time${isoDate ? ` datetime="${isoDate}"` : ""}>${escapeHtml(date.trim())}</time></div><h4>${escapeHtml(title.trim())}</h4><ul>${items}</ul></article>`;
-  })
-  .join("\n");
+const releaseEntries = releases.map(([, version, date, title, body], index) => {
+  const items = [...body.matchAll(/^- (.+)$/gm)]
+    .map((match) => `<li>${inline(match[1].trim())}</li>`)
+    .join("");
+  const isoDate = date.trim().match(/^\d{4}-\d{2}-\d{2}/)?.[0];
+  return `<article class="changelog-entry"><div class="release-meta"><h3>v${escapeHtml(version)}</h3>${index === 0 ? '<span class="latest-badge">最新版本</span>' : ""}<time${isoDate ? ` datetime="${isoDate}"` : ""}>${escapeHtml(date.trim())}</time></div><h4>${escapeHtml(title.trim())}</h4><ul>${items}</ul></article>`;
+});
+const releaseHtml =
+  releaseEntries[0] +
+  (releaseEntries.length > 1
+    ? `<details class="history"><summary>查看历史版本（${releaseEntries.length - 1}）</summary>${releaseEntries.slice(1).join("\n")}</details>`
+    : "");
 
 const replacements = {
   VERSION: escapeHtml(manifest.version),
@@ -64,6 +67,15 @@ for (const [name, value] of Object.entries(replacements))
   html = html.replaceAll(`{{${name}}}`, value);
 if (/\{\{[A-Z_]+\}\}/.test(html))
   throw new Error("Unresolved template placeholder.");
+
+for (const tab of html.matchAll(
+  /<button\b([^>]*\brole="tab"[^>]*)>([\s\S]*?)<\/button\s*>/g,
+)) {
+  const label =
+    tab[1].match(/\baria-label="([^"]+)"/)?.[1] ||
+    tab[2].replace(/<[^>]*>/g, "").trim();
+  if (!label) throw new Error("A tab has no accessible text label.");
+}
 
 // Validate all page fragment links and tab/clipboard references before deployment.
 const ids = [...html.matchAll(/\bid="([^"]+)"/g)].map((match) => match[1]);
@@ -78,7 +90,7 @@ for (const reference of html.matchAll(
 }
 await mkdir(path.join(output, "assets"), { recursive: true });
 await writeFile(path.join(output, "index.html"), html);
-for (const name of ["styles.css", "app.js"])
+for (const name of ["styles.css", "components.css", "responsive.css", "app.js"])
   await copyFile(path.join(site, name), path.join(output, name));
 await copyFile(
   path.join(site, "assets/mark.svg"),

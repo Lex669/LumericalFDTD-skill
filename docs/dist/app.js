@@ -80,9 +80,11 @@ function notify(message) {
 document.querySelectorAll("[data-copy]").forEach((button) => {
   const original = button.innerHTML;
   button.addEventListener("click", async () => {
-    const text = document
-      .getElementById(button.dataset.copy)
-      .textContent.trim();
+    const source = document.getElementById(button.dataset.copy);
+    const text =
+      source.tagName === "P"
+        ? source.textContent.replace(/\s+/g, " ").trim()
+        : source.textContent.trim();
     button.disabled = true;
     try {
       // A rejected or unavailable clipboard API is reported rather than claiming success.
@@ -130,7 +132,7 @@ document.addEventListener("click", (event) => {
     setMenu(false);
 });
 window
-  .matchMedia("(min-width: 761px)")
+  .matchMedia("(min-width: 961px)")
   .addEventListener("change", () => setMenu(false));
 
 if ("IntersectionObserver" in window) {

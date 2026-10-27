@@ -1,0 +1,318 @@
+@media (max-width: 1100px) {
+  .nav-inner {
+    gap: 20px;
+  }
+  .nav-links {
+    gap: 10px;
+  }
+  .brand {
+    font-size: 18px;
+  }
+  .hero {
+    padding-top: 40px;
+  }
+  .split-section {
+    grid-template-columns: 215px minmax(0, 1fr);
+    gap: 32px;
+  }
+  .capabilities {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 32px;
+  }
+  .case-steps {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .case-step:first-child {
+    grid-column: 1/-1;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .case-sources {
+    align-items: start;
+    flex-direction: column;
+    gap: 4px;
+  }
+}
+@media (max-width: 960px) {
+  .nav-inner {
+    height: 72px;
+  }
+  .menu-toggle {
+    display: grid;
+  }
+  .nav-links {
+    display: none;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 72px;
+    background: var(--bg);
+    border-bottom: 1px solid var(--line);
+    padding: 12px 40px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+  }
+  .nav-links.is-open {
+    display: flex;
+  }
+  .nav-links a {
+    justify-content: start;
+    font-size: 16px;
+  }
+  .hero {
+    grid-template-columns: 1.3fr 1fr;
+  }
+  h1 {
+    font-size: 48px;
+  }
+  .section-heading {
+    flex-direction: column;
+    gap: 14px;
+  }
+  .section-intro {
+    max-width: 36em;
+  }
+  .split-section {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+  .section-rail > p {
+    max-width: 36em;
+  }
+  .research-note {
+    flex-direction: column;
+    align-items: start;
+    gap: 12px;
+  }
+}
+@media (max-width: 650px) {
+  html {
+    scroll-padding-top: 92px;
+  }
+  .wrap {
+    padding-inline: 24px;
+  }
+  .nav-inner {
+    height: 68px;
+    gap: 8px;
+  }
+  .brand {
+    gap: 5px;
+    font-size: 16px;
+  }
+  .brand img {
+    width: 28px;
+    height: 28px;
+  }
+  .nav-tools {
+    gap: 0;
+  }
+  .github-link {
+    font-size: 12px;
+  }
+  .nav-divider {
+    display: none;
+  }
+  .nav-links {
+    top: 68px;
+    padding-inline: 24px;
+  }
+  .hero {
+    grid-template-columns: 1fr;
+    padding-top: 28px;
+    gap: 14px;
+    padding-bottom: 16px;
+  }
+  .release-pill {
+    font-size: 12px;
+    margin-bottom: 18px;
+  }
+  h1 {
+    font-size: clamp(36px, 9.8vw, 48px);
+    letter-spacing: -1.5px;
+  }
+  .hero-description {
+    margin-top: 20px;
+    font-size: 16px;
+  }
+  .hero-actions {
+    gap: 12px 20px;
+    margin-top: 22px;
+  }
+  .hero-requirement {
+    font-size: 14px;
+    line-height: 1.8;
+  }
+  .hero-badges {
+    margin-top: 14px;
+  }
+  .optics-art {
+    width: 100%;
+    max-width: 320px;
+    justify-self: center;
+  }
+  .wavefront {
+    height: 200px;
+    object-fit: contain;
+  }
+  .optics-art figcaption {
+    margin-top: 0;
+  }
+  .section {
+    padding-top: 56px;
+  }
+  .case-study {
+    margin-top: 20px;
+    padding-top: 40px;
+  }
+  h2 {
+    font-size: 28px;
+    letter-spacing: -0.7px;
+  }
+  .section-heading {
+    margin-bottom: 24px;
+  }
+  .case-steps {
+    grid-template-columns: 1fr;
+  }
+  .case-step {
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+    padding: 22px;
+  }
+  .case-step:first-child {
+    grid-column: auto;
+  }
+  .case-step:last-child {
+    border: 0;
+  }
+  .case-step .model-schematic {
+    max-width: 350px;
+    margin-inline: auto;
+  }
+  .capabilities {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+  .capabilities article {
+    padding-top: 18px;
+  }
+  .capabilities p {
+    margin-top: 10px;
+  }
+  .capabilities code {
+    margin-top: 12px;
+  }
+  .research-note {
+    padding: 22px;
+    margin-top: 28px;
+  }
+  .research-note p {
+    margin-top: 8px;
+  }
+  .topic-line {
+    gap: 8px 18px;
+  }
+  .topic-line > span:first-child {
+    flex-basis: 100%;
+  }
+  .tabs {
+    margin-bottom: 16px;
+  }
+  .tabs button {
+    padding-inline: 14px;
+  }
+  .terminal-bar {
+    padding: 8px 12px;
+  }
+  .terminal pre {
+    padding: 16px;
+    font-size: 14px;
+  }
+  .requirements {
+    margin-top: 20px;
+  }
+  .example-workspace {
+    grid-template-columns: 1fr;
+  }
+  .example-sidebar {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+    gap: 4px;
+    padding: 8px;
+  }
+  .example-sidebar button {
+    justify-content: center;
+    font-size: 16px;
+    padding: 10px 8px;
+  }
+  .example-main {
+    padding: 20px;
+  }
+  .prompt-text {
+    font-size: 18px;
+  }
+  .example-result {
+    margin-top: 22px;
+  }
+  .example-footer {
+    margin-top: 22px;
+  }
+  .release-meta {
+    gap: 8px;
+  }
+  .release-meta h3 {
+    font-size: 22px;
+  }
+  .release-meta time {
+    flex-basis: 100%;
+    margin-left: 0;
+  }
+  .changelog-entry h4 {
+    font-size: 18px;
+  }
+  .footer {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    padding-top: 24px;
+    margin-top: 56px;
+  }
+  .footer-links {
+    justify-content: start;
+    gap: 8px 20px;
+  }
+  .footer-credit {
+    grid-column: auto;
+  }
+}
+@media (max-width: 360px) {
+  .wrap {
+    padding-inline: 18px;
+  }
+  .brand {
+    font-size: 14px;
+    gap: 2px;
+  }
+  .brand img {
+    width: 24px;
+    height: 24px;
+  }
+  .github-link {
+    font-size: 12px;
+  }
+  .hero-actions {
+    gap: 8px 16px;
+  }
+  .button {
+    padding-inline: 16px;
+  }
+  .case-step {
+    padding: 18px;
+  }
+  .terminal-bar > span {
+    max-width: 145px;
+  }
+}
