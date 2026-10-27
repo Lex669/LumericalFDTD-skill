@@ -23,6 +23,7 @@
     <link rel="stylesheet" href="./styles.css" />
     <link rel="stylesheet" href="./components.css" />
     <link rel="stylesheet" href="./responsive.css" />
+    <link rel="stylesheet" href="./motion.css" />
     <script>
       try {
         const t = localStorage.getItem("fdtd-theme");
@@ -31,6 +32,7 @@
       } catch {}
     </script>
     <script src="./app.js" defer></script>
+    <script src="./motion.js" defer></script>
   </head>
   <body>
     <a class="skip" href="#main">跳转到正文</a>
@@ -122,6 +124,7 @@
         </div>
         <figure class="optics-art">
           <svg
+            id="wavefront-art"
             class="wavefront"
             viewBox="0 0 520 500"
             fill="none"
@@ -192,7 +195,11 @@
               />
             </g>
             <path d="M5 280 497 215" stroke="url(#beam)" stroke-width="1.5" />
-            <g stroke="url(#ring)" transform="rotate(-15 290 250)">
+            <g
+              class="wave-rings"
+              stroke="url(#ring)"
+              transform="rotate(-15 290 250)"
+            >
               <ellipse
                 cx="290"
                 cy="250"
@@ -242,12 +249,26 @@
               />
             </g>
             <path
+              class="wave-trace"
+              pathLength="1"
               d="M30 277c25-3 22-31 47-34s25 25 50 22 22-31 47-34 25 25 50 22 22-31 47-34"
               stroke="#8e7fa9"
               stroke-width="2"
               stroke-linecap="round"
             />
-            <circle cx="277" cy="250" r="4" fill="#8e7fa9" />
+            <path
+              class="wave-packet"
+              pathLength="1"
+              aria-hidden="true"
+              d="M30 277c25-3 22-31 47-34s25 25 50 22 22-31 47-34 25 25 50 22 22-31 47-34"
+            />
+            <circle
+              class="wave-source"
+              cx="277"
+              cy="250"
+              r="4"
+              fill="#8e7fa9"
+            />
             <circle
               cx="277"
               cy="250"
@@ -261,7 +282,18 @@
               stroke-opacity=".35"
             />
           </svg>
-          <figcaption>光学波前示意</figcaption>
+          <figcaption>
+            <span>光学波前示意</span
+            ><button
+              id="motion-toggle"
+              type="button"
+              aria-pressed="false"
+              aria-controls="wavefront-art"
+              hidden
+            >
+              暂停动效
+            </button>
+          </figcaption>
         </figure>
       </section>
       <section

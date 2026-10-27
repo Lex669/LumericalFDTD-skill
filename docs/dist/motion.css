@@ -1,0 +1,151 @@
+/* Motion enhances a fully visible static page. All text keeps full opacity. */
+.optics-art figcaption {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+}
+#motion-toggle {
+  min-width: 88px;
+  min-height: 44px;
+  padding: 8px 12px;
+  background: transparent;
+  color: var(--secondary);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  font-size: 14px;
+}
+#motion-toggle:hover:not(:disabled) {
+  background: var(--raised);
+}
+#motion-toggle:disabled {
+  cursor: default;
+}
+:root[data-motion="paused"] * {
+  animation-play-state: paused !important;
+  transition: none !important;
+}
+:root[data-motion="paused"],
+:root[data-motion="reduced"] {
+  scroll-behavior: auto;
+}
+:root[data-motion="paused"] .primary:hover,
+:root[data-motion="reduced"] .primary:hover {
+  transform: none;
+}
+.wave-packet {
+  opacity: 0;
+  fill: none;
+  stroke: var(--accent);
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-dasharray: 0.065 0.935;
+}
+.wave-trace {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 0;
+}
+.motion-ready .wave-rings ellipse {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: wave-radiate 6.4s linear infinite;
+  animation-delay: var(--wave-delay, 0s);
+  animation-play-state: paused;
+}
+.motion-ready .wave-packet {
+  animation: signal-travel 6.4s linear infinite;
+  animation-play-state: paused;
+}
+.motion-ready .wave-source {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: source-pulse 6.4s ease-in-out infinite;
+  animation-play-state: paused;
+}
+:root[data-motion="running"][data-wave-active="true"] .wave-rings ellipse,
+:root[data-motion="running"][data-wave-active="true"] .wave-packet,
+:root[data-motion="running"][data-wave-active="true"] .wave-source {
+  animation-play-state: running;
+}
+@keyframes wave-radiate {
+  0% {
+    transform: scale(0.86);
+    opacity: 0.26;
+  }
+  38% {
+    opacity: 0.95;
+  }
+  100% {
+    transform: scale(1.1);
+    opacity: 0.26;
+  }
+}
+@keyframes signal-travel {
+  0% {
+    stroke-dashoffset: 1.1;
+    opacity: 0;
+  }
+  8% {
+    opacity: 1;
+  }
+  76% {
+    opacity: 1;
+  }
+  92%,
+  100% {
+    stroke-dashoffset: -0.1;
+    opacity: 0;
+  }
+}
+@keyframes source-pulse {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  35% {
+    transform: scale(1.45);
+  }
+  60% {
+    transform: scale(1);
+  }
+}
+.tabs.tab-motion-ready,
+.example-sidebar.tab-motion-ready {
+  position: relative;
+  isolation: isolate;
+}
+.tab-motion-ready > .tab-indicator {
+  position: absolute;
+  left: 0;
+  top: 0;
+  pointer-events: none;
+  border-radius: 7px;
+  background: var(--surface);
+  box-shadow: 0 1px 4px #00000008;
+  transform-origin: left top;
+  z-index: 0;
+}
+.example-sidebar.tab-motion-ready > .tab-indicator {
+  background: var(--accent-soft);
+  box-shadow: none;
+}
+.tab-motion-ready > button {
+  position: relative;
+  z-index: 1;
+}
+.tabs.tab-motion-ready > button[aria-selected="true"],
+.example-sidebar.tab-motion-ready > button[aria-selected="true"] {
+  background: transparent;
+  box-shadow: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .motion-ready .wave-rings ellipse,
+  .motion-ready .wave-packet,
+  .motion-ready .wave-source {
+    animation: none !important;
+  }
+  .wave-packet {
+    opacity: 0;
+  }
+}

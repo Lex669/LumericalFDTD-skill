@@ -90,7 +90,14 @@ for (const reference of html.matchAll(
 }
 await mkdir(path.join(output, "assets"), { recursive: true });
 await writeFile(path.join(output, "index.html"), html);
-for (const name of ["styles.css", "components.css", "responsive.css", "app.js"])
+for (const name of [
+  "styles.css",
+  "components.css",
+  "responsive.css",
+  "motion.css",
+  "app.js",
+  "motion.js",
+])
   await copyFile(path.join(site, name), path.join(output, name));
 await copyFile(
   path.join(site, "assets/mark.svg"),

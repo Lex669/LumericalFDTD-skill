@@ -39,6 +39,7 @@ updateThemeButton();
 document.querySelectorAll('[role="tablist"]').forEach((list) => {
   const tabs = [...list.querySelectorAll('[role="tab"]')];
   function activate(tab, focus = false) {
+    const changed = tab.getAttribute("aria-selected") !== "true";
     tabs.forEach((item) => {
       const selected = item === tab;
       item.setAttribute("aria-selected", String(selected));
@@ -47,6 +48,16 @@ document.querySelectorAll('[role="tablist"]').forEach((list) => {
         !selected;
     });
     if (focus) tab.focus();
+    if (changed)
+      document.dispatchEvent(
+        new CustomEvent("fdtd:tab-change", {
+          detail: {
+            tab,
+            list,
+            panel: document.getElementById(tab.getAttribute("aria-controls")),
+          },
+        }),
+      );
   }
   tabs.forEach((tab, index) => {
     tab.addEventListener("click", () => activate(tab));
@@ -90,6 +101,9 @@ document.querySelectorAll("[data-copy]").forEach((button) => {
       // A rejected or unavailable clipboard API is reported rather than claiming success.
       await navigator.clipboard.writeText(text);
       button.textContent = "已复制 ✓";
+      document.dispatchEvent(
+        new CustomEvent("fdtd:copied", { detail: { button } }),
+      );
       notify("已复制，可以粘贴到你的本地 AI 工具中。");
       setTimeout(() => {
         button.innerHTML = original;
@@ -108,6 +122,9 @@ function setMenu(open) {
   navigation.classList.toggle("is-open", open);
   menuButton.setAttribute("aria-expanded", String(open));
   menuButton.setAttribute("aria-label", open ? "收起导航" : "展开导航");
+  document.dispatchEvent(
+    new CustomEvent("fdtd:menu-toggle", { detail: { open, navigation } }),
+  );
 }
 menuButton.addEventListener("click", () =>
   setMenu(menuButton.getAttribute("aria-expanded") !== "true"),
