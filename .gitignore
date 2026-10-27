@@ -1,2 +1,5 @@
 evals
 .claude/
+
+# Generated project website
+website/dist/

@@ -8,6 +8,8 @@
 
 Ansys Lumerical FDTD 仿真自动化 + 学术论文深度分析，Claude Code / Codex CLI 双生态插件。
 
+项目官网源码位于 [`website/`](website/)，本地预览与 GitHub Pages 部署方式见下方说明。
+
 ## 功能概览
 
 ### 🔬 FDTD 仿真（4 个分级 skills + 4 个 slash commands）
@@ -142,6 +144,23 @@ MyProject/
 
 - 首版 `SKILL.md` 与 `API_SUMMARY.md`：Lumerical Python API 的建模、仿真与结果提取流程。
 - 建立 `references/` 目录：`api-reference.md`、`building-blocks.md`、`common-errors.md`、`diffraction.md`。
+
+## 项目官网
+
+官网地址：https://lex669.github.io/LumericalFDTD-skill/
+
+网站为无第三方运行时依赖的静态页面，版本、安装命令和更新日志在构建时从插件清单与本 README 中读取。
+
+本地预览需要 Node.js 22 或更新版本，在仓库根目录执行：
+
+```bash
+node website/scripts/build.mjs
+node website/scripts/serve.mjs
+```
+
+打开 http://localhost:4173/LumericalFDTD-skill/ ，修改网站源码后重新构建并刷新页面。生成目录 `website/dist/` 不提交到 Git。
+
+GitHub Pages 使用 [部署工作流](.github/workflows/pages.yml)：在仓库 **Settings → Pages → Source** 选择 **GitHub Actions**，推送到 `main` 后自动构建并发布，也可在 Actions 中手动运行。Pull request 仅构建验证，不发布。
 
 ## License
 
