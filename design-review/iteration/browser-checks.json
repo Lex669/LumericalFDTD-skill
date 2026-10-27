@@ -1,0 +1,47 @@
+[
+  {
+    "mode": "light",
+    "lowContrast": [],
+    "minContrast": 4.55,
+    "overflow": false,
+    "smallTargets": [],
+    "smallText": [],
+    "width": 1440
+  },
+  {
+    "mode": "dark",
+    "lowContrast": [],
+    "minContrast": 6.35,
+    "overflow": false,
+    "smallTargets": [],
+    "smallText": [],
+    "width": 1440
+  },
+  {
+    "mode": "dark",
+    "lowContrast": [],
+    "minContrast": 6.35,
+    "overflow": false,
+    "smallTargets": [],
+    "smallText": [],
+    "width": 375
+  },
+  {
+    "mode": "light",
+    "lowContrast": [],
+    "minContrast": 4.55,
+    "overflow": false,
+    "smallTargets": [],
+    "smallText": [],
+    "width": 320
+  },
+  {
+    "mode": "light",
+    "lowContrast": [],
+    "minContrast": 4.55,
+    "overflow": false,
+    "smallTargets": [],
+    "smallText": [],
+    "width": 768
+  }
+]

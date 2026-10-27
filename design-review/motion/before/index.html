@@ -1,0 +1,819 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <title>LumericalFDTD · 让光学仿真，从一句话开始</title>
+    <meta
+      name="description"
+      content="连接 Claude Code、Codex 与 Ansys Lumerical FDTD，贯通光学建模、仿真、数据分析与报告。开源科研自动化插件。"
+    />
+    <meta
+      property="og:title"
+      content="LumericalFDTD · 让光学仿真，从一句话开始"
+    />
+    <meta
+      property="og:description"
+      content="从自然语言需求，到光学模型、仿真数据和科研图表。面向 Claude Code 与 Codex 的开源自动化插件。"
+    />
+    <meta property="og:type" content="website" />
+    <meta name="theme-color" content="#f4f1ec" />
+    <link rel="icon" href="./assets/mark.svg" type="image/svg+xml" />
+    <link rel="stylesheet" href="./styles.css" />
+    <link rel="stylesheet" href="./components.css" />
+    <link rel="stylesheet" href="./responsive.css" />
+    <script>
+      try {
+        const t = localStorage.getItem("fdtd-theme");
+        if (t === "light" || t === "dark")
+          document.documentElement.dataset.theme = t;
+      } catch {}
+    </script>
+    <script src="./app.js" defer></script>
+  </head>
+  <body>
+    <a class="skip" href="#main">跳转到正文</a>
+    <header class="nav">
+      <div class="wrap nav-inner">
+        <a class="brand" href="#" aria-label="LumericalFDTD 首页"
+          ><img src="./assets/mark.svg" width="34" height="34" alt="" /><span
+            >Lumerical<span class="brand-soft">FDTD</span></span
+          ></a
+        >
+        <nav id="navigation" class="nav-links" aria-label="主导航">
+          <a href="#case-study">任务流程</a><a href="#features">功能</a
+          ><a href="#install">快速安装</a><a href="#examples">使用示例</a
+          ><a href="#changelog">更新日志</a>
+        </nav>
+        <div class="nav-tools">
+          <a
+            class="github-link"
+            href="https://github.com/Lex669/LumericalFDTD-skill"
+            target="_blank"
+            rel="noopener noreferrer"
+            >GitHub </a
+          ><span class="nav-divider"></span
+          ><button
+            id="theme-toggle"
+            class="icon-button"
+            type="button"
+            aria-label="切换至深色主题"
+            aria-pressed="false"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              aria-hidden="true"
+            >
+              <path
+                d="M20.5 13.3A8.6 8.6 0 0 1 10.7 3.5a8.6 8.6 0 1 0 9.8 9.8Z"
+              />
+            </svg></button
+          ><button
+            class="icon-button menu-toggle"
+            id="menu-toggle"
+            type="button"
+            aria-expanded="false"
+            aria-controls="navigation"
+            aria-label="展开导航"
+          >
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="1.5"
+              aria-hidden="true"
+            >
+              <path d="M4 8h16M4 16h16" />
+            </svg>
+          </button>
+        </div>
+      </div>
+    </header>
+    <main id="main">
+      <!-- Existing-direction iteration: retain the warm-gray visual system. Explain the local plugin and software prerequisites early. Workflow diagrams are schematic; no simulated results are claimed. -->
+      <section class="hero wrap" aria-labelledby="hero-title">
+        <div class="hero-content">
+          <a class="release-pill" href="#changelog"
+            ><span class="status-dot"></span> v{{VERSION}}
+            <span class="pill-separator">/</span> 为光学研究而构建
+          </a>
+
+          <h1 id="hero-title">
+            让光学仿真，<br />从一句话开始<span class="period">。</span>
+          </h1>
+          <p class="hero-description">
+            面向 Claude Code 与 Codex 的本地 FDTD 自动化插件。连接你已有的 Ansys
+            Lumerical 环境，完成建模、仿真与分析。
+          </p>
+          <div class="hero-actions">
+            <a class="button primary" href="#install">查看安装命令</a
+            ><a class="text-link" href="#case-study">查看任务流程 </a>
+          </div>
+          <p class="hero-requirement">
+            需要本地 Ansys Lumerical FDTD 及有效许可。
+          </p>
+          <div class="hero-badges">
+            <span>Claude Code</span><span>Codex</span><span>MIT 开源</span>
+          </div>
+        </div>
+        <figure class="optics-art">
+          <svg
+            class="wavefront"
+            viewBox="0 0 520 500"
+            fill="none"
+            role="img"
+            aria-labelledby="wave-title wave-description"
+          >
+            <title id="wave-title">从光源到波前的抽象光学图形</title>
+            <desc id="wave-description">
+              一束光穿过网格平面，形成蓝紫色的同心波前。这是装饰性示意。
+            </desc>
+            <defs>
+              <linearGradient
+                id="beam"
+                x1="20"
+                y1="260"
+                x2="500"
+                y2="260"
+                gradientUnits="userSpaceOnUse"
+              >
+                <stop stop-color="#9b8abe" stop-opacity="0" />
+                <stop offset=".45" stop-color="#8d81ad" stop-opacity=".6" />
+                <stop offset="1" stop-color="#7d9da2" stop-opacity="0" />
+              </linearGradient>
+              <radialGradient id="glow">
+                <stop stop-color="#b6a4c9" stop-opacity=".24" />
+                <stop offset="1" stop-color="#b6a4c9" stop-opacity="0" />
+              </radialGradient>
+              <linearGradient
+                id="ring"
+                x1="230"
+                y1="120"
+                x2="410"
+                y2="400"
+                gradientUnits="userSpaceOnUse"
+              >
+                <stop stop-color="#9f8daf" />
+                <stop offset=".5" stop-color="#82769d" />
+                <stop offset="1" stop-color="#a4b9b5" />
+              </linearGradient>
+              <pattern
+                id="grid"
+                width="28"
+                height="28"
+                patternUnits="userSpaceOnUse"
+              >
+                <path
+                  d="M28 0H0V28"
+                  stroke="currentColor"
+                  stroke-opacity=".12"
+                  stroke-width=".7"
+                />
+              </pattern>
+            </defs>
+            <ellipse cx="295" cy="250" rx="225" ry="222" fill="url(#glow)" />
+            <g class="art-grid" transform="translate(195 65) skewY(24)">
+              <rect width="190" height="310" fill="url(#grid)" />
+              <rect
+                width="190"
+                height="310"
+                stroke="currentColor"
+                stroke-opacity=".13"
+              />
+              <path
+                d="M0 155h190M95 0v310"
+                stroke="currentColor"
+                stroke-opacity=".15"
+                stroke-dasharray="3 6"
+              />
+            </g>
+            <path d="M5 280 497 215" stroke="url(#beam)" stroke-width="1.5" />
+            <g stroke="url(#ring)" transform="rotate(-15 290 250)">
+              <ellipse
+                cx="290"
+                cy="250"
+                rx="27"
+                ry="57"
+                stroke-opacity=".9"
+                stroke-width="1.6"
+              />
+              <ellipse
+                cx="290"
+                cy="250"
+                rx="44"
+                ry="90"
+                stroke-opacity=".85"
+                stroke-width="1.5"
+              />
+              <ellipse
+                cx="290"
+                cy="250"
+                rx="61"
+                ry="123"
+                stroke-opacity=".75"
+                stroke-width="1.4"
+              />
+              <ellipse
+                cx="290"
+                cy="250"
+                rx="78"
+                ry="156"
+                stroke-opacity=".6"
+                stroke-width="1.3"
+              />
+              <ellipse
+                cx="290"
+                cy="250"
+                rx="95"
+                ry="189"
+                stroke-opacity=".4"
+                stroke-width="1.2"
+              />
+              <ellipse
+                cx="290"
+                cy="250"
+                rx="112"
+                ry="222"
+                stroke-opacity=".2"
+              />
+            </g>
+            <path
+              d="M30 277c25-3 22-31 47-34s25 25 50 22 22-31 47-34 25 25 50 22 22-31 47-34"
+              stroke="#8e7fa9"
+              stroke-width="2"
+              stroke-linecap="round"
+            />
+            <circle cx="277" cy="250" r="4" fill="#8e7fa9" />
+            <circle
+              cx="277"
+              cy="250"
+              r="10"
+              stroke="#8e7fa9"
+              stroke-opacity=".25"
+            />
+            <path
+              d="m59 355 100-13M59 355l25-53"
+              stroke="currentColor"
+              stroke-opacity=".35"
+            />
+          </svg>
+          <figcaption>光学波前示意</figcaption>
+        </figure>
+      </section>
+      <section
+        id="case-study"
+        class="section wrap case-study"
+        aria-labelledby="case-title"
+      >
+        <div class="section-heading">
+          <div><h2 id="case-title">从一个波导需求，走到可复用的项目。</h2></div>
+          <p class="section-intro">
+            把需求、模型与文件产物连起来，看清每一步如何衔接。
+          </p>
+        </div>
+        <p class="case-disclosure">
+          以下为基于仓库示例的任务流程，结构图为示意，未展示实际仿真结果。
+        </p>
+        <ol class="case-steps">
+          <li class="case-step">
+            <div class="step-heading">
+              <span class="step-number">1</span>
+              <h3>描述研究需求</h3>
+            </div>
+            <p id="case-prompt" class="case-prompt">
+              构建一个脊形波导模型：Si 芯层 220nm，SiO2 包层，波长 1550nm，TE
+              模式。
+            </p>
+            <button
+              class="copy-button case-copy"
+              type="button"
+              data-copy="case-prompt"
+              aria-label="复制波导流程需求"
+            >
+              复制需求
+            </button>
+            <p class="case-note">
+              开始建模前，还需确认波导宽度、刻蚀深度、边界条件与监视器配置。
+            </p>
+          </li>
+          <li class="case-step">
+            <div class="step-heading">
+              <span class="step-number">2</span>
+              <h3>建立模型与脚本</h3>
+            </div>
+            <figure class="model-schematic">
+              <svg
+                viewBox="0 0 320 190"
+                role="img"
+                aria-labelledby="model-title model-desc"
+              >
+                <title id="model-title">脊形波导截面示意</title>
+                <desc id="model-desc">
+                  Si 芯层位于 SiO2 包层中，总芯层厚度为需求中的 220
+                  纳米；波导宽度与刻蚀深度待确认，图形不按比例绘制。
+                </desc>
+                <rect
+                  x="12"
+                  y="12"
+                  width="296"
+                  height="166"
+                  rx="8"
+                  class="cladding"
+                />
+                <path d="M38 124H118V76H202V124H282V148H38Z" class="silicon" />
+                <text
+                  class="material-name"
+                  x="160"
+                  y="105"
+                  text-anchor="middle"
+                >
+                  Si
+                </text>
+                <text x="52" y="46">SiO₂</text>
+                <path
+                  d="M272 76H294M272 148H294M288 76V148"
+                  class="dimension"
+                />
+                <text x="250" y="175" text-anchor="middle">总厚度 220 nm</text>
+              </svg>
+              <figcaption>
+                结构示意，未按比例绘制；宽度与刻蚀深度待确认。
+              </figcaption>
+            </figure>
+            <a
+              class="text-link"
+              href="https://github.com/Lex669/LumericalFDTD-skill/blob/main/skills/LumericalFDTD-modeling/SKILL.md"
+              target="_blank"
+              rel="noopener noreferrer"
+              >查看建模技能定义</a
+            >
+          </li>
+          <li class="case-step">
+            <div class="step-heading">
+              <span class="step-number">3</span>
+              <h3>运行并整理产物</h3>
+            </div>
+            <p>继续仿真与分析后，按项目约定保存模型、数据、图表与报告。</p>
+            <dl class="artifact-list">
+              <div>
+                <dt>fsp/</dt>
+                <dd>模型与运行日志</dd>
+              </div>
+              <div>
+                <dt>data/</dt>
+                <dd>.npz 结果数据</dd>
+              </div>
+              <div>
+                <dt>pic/</dt>
+                <dd>每次分析的图表</dd>
+              </div>
+              <div>
+                <dt>REPORT.md</dt>
+                <dd>分析报告</dd>
+              </div>
+            </dl>
+            <p class="case-note">调整分析脚本可重新绘图，无需重跑仿真。</p>
+          </li>
+        </ol>
+        <div class="case-sources">
+          <p>脚本与产物约定均可在仓库核查。实际结果需在本地环境中运行获得。</p>
+          <a
+            class="text-link"
+            href="https://github.com/Lex669/LumericalFDTD-skill/blob/main/skills/LumericalFDTD/scripts/template.py"
+            target="_blank"
+            rel="noopener noreferrer"
+            >查看通用仿真脚本模板</a
+          >
+        </div>
+      </section>
+
+      <section
+        id="features"
+        class="section wrap"
+        aria-labelledby="features-title"
+      >
+        <div class="section-heading">
+          <div>
+            <h2 id="features-title">按研究阶段，调用对应技能。</h2>
+          </div>
+          <p class="section-intro">
+            把重复工作串联起来，<br />让每个阶段都能独立调用，也能协同完成。
+          </p>
+        </div>
+        <div class="capabilities">
+          <article>
+            <h3>构建模型</h3>
+            <p>
+              定义结构与材料，配置光源、监视器和网格，把需求转化为仿真模型。
+            </p>
+            <code>LumericalFDTD-modeling</code>
+          </article>
+          <article>
+            <h3>运行仿真</h3>
+            <p>
+              执行脚本、诊断错误并尝试修复，提取结果数据，最多自动重试 5 次。
+            </p>
+            <code>LumericalFDTD-simulation</code>
+          </article>
+          <article>
+            <h3>理解数据</h3>
+            <p>读取 .npz 数据，分析光谱和场分布，生成用于科研表达的图表。</p>
+            <code>LumericalFDTD-analysis</code>
+          </article>
+          <article>
+            <h3>贯通全流程</h3>
+            <p>从建模到仿真、分析与验收，组织完整的项目文件和研究报告。</p>
+            <code>LumericalFDTD</code>
+          </article>
+        </div>
+        <div class="research-note">
+          <div>
+            <h3>论文阅读与图表分析</h3>
+            <p>
+              输入 PDF、Arxiv URL 或
+              DOI，生成八章节中文报告；从内容、观察和论证关系等五个维度，逐图逐表分析。
+            </p>
+          </div>
+          <a
+            class="text-link"
+            href="https://github.com/Lex669/LumericalFDTD-skill/tree/main/skills/paper-summarizer"
+            target="_blank"
+            rel="noopener noreferrer"
+            >了解论文总结
+          </a>
+        </div>
+        <div class="topic-line">
+          <span>为你的研究方向</span><span>衍射</span><span>超表面</span
+          ><span>波导</span><span>光栅</span><span>TGV 结构</span
+          ><span>参数扫描</span>
+        </div>
+      </section>
+
+      <section
+        id="install"
+        class="section wrap split-section"
+        aria-labelledby="install-title"
+      >
+        <div class="section-rail">
+          <h2 id="install-title">安装插件</h2>
+          <p>选择使用的 AI 工具，复制命令完成安装。</p>
+          <a
+            class="text-link"
+            href="https://github.com/Lex669/LumericalFDTD-skill#安装"
+            target="_blank"
+            rel="noopener noreferrer"
+            >完整安装文档
+          </a>
+        </div>
+        <div class="install-content">
+          <div class="tabs" role="tablist" aria-label="选择安装工具">
+            <button
+              id="tab-claude"
+              role="tab"
+              aria-selected="true"
+              aria-controls="panel-claude"
+              tabindex="0"
+              type="button"
+            >
+              Claude Code</button
+            ><button
+              id="tab-codex"
+              role="tab"
+              aria-selected="false"
+              aria-controls="panel-codex"
+              tabindex="-1"
+              type="button"
+            >
+              Codex
+            </button>
+          </div>
+          <div
+            id="panel-claude"
+            class="install-panel"
+            role="tabpanel"
+            aria-labelledby="tab-claude"
+            tabindex="0"
+          >
+            <div class="terminal">
+              <div class="terminal-bar">
+                <span>Claude Code / 插件安装</span
+                ><button
+                  class="copy-button"
+                  data-copy="install-claude"
+                  type="button"
+                  aria-label="复制 Claude Code 安装命令"
+                >
+                  复制
+                </button>
+              </div>
+              <pre><code id="install-claude">{{INSTALL_CLAUDE}}</code></pre>
+            </div>
+            <p class="install-hint">
+              安装后可使用
+              <code>/fdtd-full</code> 等命令，或直接描述任务。
+            </p>
+          </div>
+          <div
+            id="panel-codex"
+            class="install-panel"
+            role="tabpanel"
+            aria-labelledby="tab-codex"
+            tabindex="0"
+            hidden
+          >
+            <div class="terminal">
+              <div class="terminal-bar">
+                <span>Codex CLI / 插件安装</span
+                ><button
+                  class="copy-button"
+                  data-copy="install-codex"
+                  type="button"
+                  aria-label="复制 Codex 安装命令"
+                >
+                  复制
+                </button>
+              </div>
+              <pre><code id="install-codex">{{INSTALL_CODEX}}</code></pre>
+            </div>
+            <p class="install-hint">
+              Codex CLI v0.121+：用自然语言描述任务，自动调用对应技能。
+            </p>
+          </div>
+          <div class="requirements">
+            <span class="requirement-icon" aria-hidden="true">i</span>
+            <div>
+              <strong>使用你的本地仿真环境</strong>
+              <p>
+                需要 Ansys Lumerical FDTD 2025 R2
+                或兼容版本及有效许可。首次使用会自动探测内置
+                Python；numpy、matplotlib 由该解释器提供。
+              </p>
+              <p class="muted">
+                插件使用 MIT 许可；Ansys
+                仿真软件需单独获得许可。实际计算在本地执行。
+              </p>
+            </div>
+          </div>
+          <noscript
+            ><p>
+              当前浏览器未启用 JavaScript。请通过上方安装文档查看 Codex
+              命令和更多使用说明。
+            </p></noscript
+          >
+        </div>
+      </section>
+
+      <section
+        id="examples"
+        class="section wrap"
+        aria-labelledby="examples-title"
+      >
+        <div class="section-heading">
+          <div>
+            <h2 id="examples-title">更多任务，从这里开始。</h2>
+          </div>
+          <p class="section-intro">
+            复制需求到本地 AI 工具，补充参数后调用对应技能。
+          </p>
+        </div>
+        <div class="example-workspace">
+          <div
+            class="example-sidebar"
+            role="tablist"
+            aria-label="选择任务示例"
+            aria-orientation="vertical"
+          >
+            <button
+              id="example-tab-waveguide"
+              role="tab"
+              aria-selected="true"
+              aria-controls="example-waveguide"
+              tabindex="0"
+              type="button"
+            >
+              <span>波导建模</span></button
+            ><button
+              id="example-tab-spectrum"
+              role="tab"
+              aria-selected="false"
+              aria-controls="example-spectrum"
+              tabindex="-1"
+              type="button"
+            >
+              <span>光栅透射谱</span></button
+            ><button
+              id="example-tab-debug"
+              role="tab"
+              aria-selected="false"
+              aria-controls="example-debug"
+              tabindex="-1"
+              type="button"
+            >
+              <span>运行与调试</span></button
+            ><button
+              id="example-tab-paper"
+              role="tab"
+              aria-selected="false"
+              aria-controls="example-paper"
+              tabindex="-1"
+              type="button"
+            >
+              <span>论文深度阅读</span>
+            </button>
+          </div>
+          <div class="example-main">
+            <div
+              id="example-waveguide"
+              role="tabpanel"
+              aria-labelledby="example-tab-waveguide"
+              tabindex="0"
+            >
+              <div class="example-top">
+                <button
+                  class="copy-button"
+                  data-copy="prompt-waveguide"
+                  type="button"
+                  aria-label="复制波导建模示例"
+                >
+                  复制需求
+                </button>
+              </div>
+              <p id="prompt-waveguide" class="prompt-text">
+                构建一个脊形波导模型：Si 芯层 220nm，SiO2 包层，波长 1550nm，TE
+                模式。
+              </p>
+              <div class="example-result">
+                <span class="result-label">预期产物</span>
+                <p>几何结构、材料与光源配置，以及可复用的 Python 建模脚本。</p>
+                <div class="file-tags">
+                  <span>Python 脚本</span><span>FDTD 模型</span>
+                </div>
+              </div>
+            </div>
+            <div
+              id="example-spectrum"
+              role="tabpanel"
+              aria-labelledby="example-tab-spectrum"
+              tabindex="0"
+              hidden
+            >
+              <div class="example-top">
+                <button
+                  class="copy-button"
+                  data-copy="prompt-spectrum"
+                  type="button"
+                  aria-label="复制光栅透射谱示例"
+                >
+                  复制需求
+                </button>
+              </div>
+              <p id="prompt-spectrum" class="prompt-text">
+                用 FDTD
+                仿真一个光栅结构的透过率谱。先与我确认结构尺寸、材料、波长范围和边界条件，再完成建模、仿真与分析。
+              </p>
+              <div class="example-result">
+                <span class="result-label">预期产物</span>
+                <p>
+                  确认参数后，在本地生成仿真项目、结果数据、透射谱图表与分析报告。
+                </p>
+                <div class="file-tags">
+                  <span>.fsp</span><span>.npz</span><span>光谱图</span
+                  ><span>REPORT.md</span>
+                </div>
+              </div>
+            </div>
+            <div
+              id="example-debug"
+              role="tabpanel"
+              aria-labelledby="example-tab-debug"
+              tabindex="0"
+              hidden
+            >
+              <div class="example-top">
+                <button
+                  class="copy-button"
+                  data-copy="prompt-debug"
+                  type="button"
+                  aria-label="复制运行与调试示例"
+                >
+                  复制需求
+                </button>
+              </div>
+              <p id="prompt-debug" class="prompt-text">
+                运行 myproject_sim.py，如果报错自动修复。
+              </p>
+              <div class="example-result">
+                <span class="result-label">预期产物</span>
+                <p>
+                  本地执行日志与结果数据；出现错误时自动诊断并尝试修复，最多重试
+                  5 次。
+                </p>
+                <div class="file-tags">
+                  <span>执行日志</span><span>结果数据</span>
+                </div>
+              </div>
+            </div>
+            <div
+              id="example-paper"
+              role="tabpanel"
+              aria-labelledby="example-tab-paper"
+              tabindex="0"
+              hidden
+            >
+              <div class="example-top">
+                <button
+                  class="copy-button"
+                  data-copy="prompt-paper"
+                  type="button"
+                  aria-label="复制论文总结示例"
+                >
+                  复制需求
+                </button>
+              </div>
+              <p id="prompt-paper" class="prompt-text">
+                深度总结我提供的论文
+                PDF，用中文梳理研究动机、方法、实验和核心贡献，并逐图逐表分析关键观察、论证关系与局限。
+              </p>
+              <div class="example-result">
+                <span class="result-label">预期产物</span>
+                <p>
+                  八章节结构化中文报告，以及每张图表的五维分析。请在本地工具中附上论文路径或链接。
+                </p>
+                <div class="file-tags">
+                  <span>中文报告</span><span>图表详解</span>
+                </div>
+              </div>
+            </div>
+            <div class="example-footer">
+              <span class="status-dot"></span> 示例需求 ·
+              实际产物取决于任务与本地环境
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section
+        id="changelog"
+        class="section wrap split-section"
+        aria-labelledby="changelog-title"
+      >
+        <div class="section-rail">
+          <h2 id="changelog-title">更新日志</h2>
+          <p>来自仓库的真实更新记录。</p>
+          <a
+            class="text-link"
+            href="https://github.com/Lex669/LumericalFDTD-skill#更新日志"
+            target="_blank"
+            rel="noopener noreferrer"
+            >查看完整记录
+          </a>
+        </div>
+        <div class="changelog-list">{{CHANGELOG}}</div>
+      </section>
+    </main>
+    <footer class="footer wrap">
+      <div>
+        <a class="brand" href="#"
+          ><img src="./assets/mark.svg" width="30" height="30" alt="" /><span
+            >Lumerical<span class="brand-soft">FDTD</span></span
+          ></a
+        >
+        <p>面向光学研究的 AI 仿真自动化插件。</p>
+      </div>
+      <div class="footer-links">
+        <a
+          href="https://github.com/Lex669/LumericalFDTD-skill"
+          target="_blank"
+          rel="noopener noreferrer"
+          >GitHub ↗</a
+        ><a
+          href="https://github.com/Lex669/LumericalFDTD-skill/blob/main/README.md"
+          target="_blank"
+          rel="noopener noreferrer"
+          >文档 ↗</a
+        ><a
+          href="https://github.com/Lex669/LumericalFDTD-skill/blob/main/LICENSE.txt"
+          target="_blank"
+          rel="noopener noreferrer"
+          >MIT License ↗</a
+        >
+      </div>
+      <p class="footer-credit">
+        由 Lex669 构建
+        <span aria-hidden="true">·</span> v{{VERSION}}<br />独立开源项目，与
+        Ansys 无隶属关系。
+      </p>
+    </footer>
+    <div
+      id="toast"
+      class="toast"
+      role="status"
+      aria-live="polite"
+      aria-atomic="true"
+    ></div>
+  </body>
+</html>
